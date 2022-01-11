@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using Azure.Messaging.EventGrid;
+using AzureReaper.Functions.Common;
 using AzureReaper.Functions.Interfaces;
 using AzureReaper.Functions.Models;
 using Microsoft.Azure.WebJobs;
@@ -26,15 +27,15 @@ public class EventGridTrigger
         [DurableClient] IDurableClient client,
         ILogger log)
     {
-        log.LogInformation(eventGridEvent.Data.ToString());
-        log.LogInformation(eventGridEvent.Subject);
+        log.LogInformation("Starting execution for Resource Group write event: {EventSubject}", eventGridEvent.Subject);
+        var rgName = StringHandler.ExtractResourceGroupName(eventGridEvent.Subject);
+        log.LogInformation(rgName);
 
+        await client.SignalEntityAsync(new EntityId(nameof(AzureResourceGroup), rgName),
+            nameof(AzureResourceGroup.CreateResource),
+            eventGridEvent.Subject
+        );
+        
         var entityId = _entityFactory.GetEntityIdAsync(eventGridEvent.Subject, default);
-
-        // await client.SignalEntityAsync(
-        //     new EntityId(nameof(AzureResourceGroup), eventGridEvent.Subject),
-        //     nameof(AzureResourceGroup.CreateResource),
-        //     eventGridEvent.Subject
-        // );
     }
 }
