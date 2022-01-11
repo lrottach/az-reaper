@@ -24,6 +24,9 @@ public class AzureResourceGroup : IAzureResourceGroup
     [JsonProperty("name")]
     public string Name { get; set; }
 
+    [JsonProperty("scheduled")]
+    public bool Scheduled { get; set; }
+
     public AzureResourceGroup(ILogger log, IHttpClientFactory factory)
     {
         _log = log;
@@ -43,6 +46,4 @@ public class AzureResourceGroup : IAzureResourceGroup
     [FunctionName(nameof(AzureResourceGroup))]
     public static Task Run([EntityTrigger] IDurableEntityContext ctx, ILogger log)
         => ctx.DispatchAsync<AzureResourceGroup>(log);
-
-    
 }
