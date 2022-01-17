@@ -28,14 +28,18 @@ public class EventGridTrigger
         ILogger log)
     {
         log.LogInformation("Starting execution for Resource Group write event: {EventSubject}", eventGridEvent.Subject);
-        var rgName = StringHandler.ExtractResourceGroupName(eventGridEvent.Subject);
-        log.LogInformation(rgName);
-
-        await client.SignalEntityAsync(new EntityId(nameof(AzureResourceGroup), rgName),
-            nameof(AzureResourceGroup.CreateResource),
-            eventGridEvent.Subject
-        );
         
-        var entityId = _entityFactory.GetEntityIdAsync(eventGridEvent.Subject, default);
+        // Check if entity already exists
+        var entityId = new EntityId(nameof(AzureResourceGroup), eventGridEvent.Subject.Replace("/", ""));
+        var state = await client.ReadEntityStateAsync<AzureResourceGroup>(entityId);
+        if (state.EntityExists && state.EntityState.Scheduled)
+        {
+            log.LogWarning("Entity for Resource Id '{ResourceId}' already exists and death was already scheduled", state.EntityState.ResourceId);
+            return;
+        }
+
+        // Initialize orchestrator to interact with Durable Entities
+        string instanceId = await client.StartNewAsync("AzureReaper_Orchestrator", null, new EventPayload{EventSubject = eventGridEvent.Subject});
+        log.LogInformation("Started orchestration with Id: {InstanceId}", instanceId);
     }
 }
