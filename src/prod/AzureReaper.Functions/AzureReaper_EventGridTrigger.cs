@@ -27,6 +27,12 @@ public class EventGridTrigger
         [DurableClient] IDurableClient client,
         ILogger log)
     {
+        if (eventGridEvent.EventType != "Microsoft.Resources.ResourceWriteSuccess")
+        {
+            log.LogError("You shall not pass: {EventType}", eventGridEvent.EventType);
+            return;
+        }
+        
         log.LogInformation("Starting execution for Resource Group write event: {EventSubject}", eventGridEvent.Subject);
         
         // Check if entity already exists
