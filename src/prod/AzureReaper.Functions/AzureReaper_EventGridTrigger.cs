@@ -3,8 +3,6 @@
 
 using System.Threading.Tasks;
 using Azure.Messaging.EventGrid;
-using AzureReaper.Functions.Common;
-using AzureReaper.Functions.Interfaces;
 using AzureReaper.Functions.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -15,13 +13,6 @@ namespace AzureReaper.Functions;
 
 public class EventGridTrigger
 {
-    private readonly IEntityFactory _entityFactory;
-
-    public EventGridTrigger(IEntityFactory entityFactory)
-    {
-        _entityFactory = entityFactory;
-    }
-    
     [FunctionName("AzureReaper_EventGridTrigger")]
     public async Task RunAsync([EventGridTrigger] EventGridEvent eventGridEvent,
         [DurableClient] IDurableClient client,
