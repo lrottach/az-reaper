@@ -2,7 +2,7 @@ namespace AzureReaper.Functions.Interfaces;
 
 public interface IAzureResourceGroup
 {
-    public void CreateResource();
+    public bool GetSchedule();
+    public void CreateResource(string resourceId);
     public void DeleteResource();
-
 }
