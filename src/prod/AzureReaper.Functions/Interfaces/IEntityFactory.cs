@@ -6,5 +6,5 @@ namespace AzureReaper.Functions.Interfaces;
 
 public interface IEntityFactory
 {
-    Task<EntityId> GetEntityIdAsync(string resourceId, CancellationToken token);
+    Task<bool> CheckEntityStatusAsync(EntityId entityId, IDurableClient client, CancellationToken cancellationToken);
 }
