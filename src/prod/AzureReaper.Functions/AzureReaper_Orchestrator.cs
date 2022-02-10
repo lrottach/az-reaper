@@ -3,6 +3,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using Azure.Messaging.EventGrid;
+using AzureReaper.Functions.Entities;
 using AzureReaper.Functions.Models;
 using Microsoft.Extensions.Logging;
 
@@ -16,13 +17,11 @@ public class OrchestratorFunction
         ILogger log)
     {
         EventPayload data = context.GetInput<EventPayload>();
-        // Console.WriteLine(data.EventSubject);
-        log.LogInformation(data.EventSubject);
+        log.LogInformation("Started new orchestrator instance for Azure Resource: {ResourceId}", data.EventSubject);
 
-        var entityId = new EntityId(nameof(AzureResourceGroup), data.EventSubject.Replace("/", ""));
+        var entityId = new EntityId(nameof(ResourceEntity), data.EventSubject.Replace("/", ""));
         context.SignalEntity(entityId, "CreateResource", data.EventSubject);
         
         bool scheduleStatus = await context.CallEntityAsync<bool>(entityId, "GetSchedule");
-        Console.WriteLine(scheduleStatus);
     }
 }
