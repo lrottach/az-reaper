@@ -7,5 +7,5 @@ public interface IResourceEntity
     public bool GetSchedule();
     public Task CreateResource(string resourceId);
     public void DeleteResource();
-    public Task CheckReaperTag();
+    public Task<bool> CheckReaperTagAsync(string tag);
 }

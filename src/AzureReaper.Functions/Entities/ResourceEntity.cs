@@ -33,8 +33,8 @@ public class ResourceEntity : IResourceEntity
     [JsonProperty("scheduled")]
     public bool Scheduled { get; set; }
 
-    [JsonProperty("resourceGroup")]
-    public AzureResourceResponse Resource { get; set; }
+    [JsonProperty("resourceResponse")]
+    public AzureResourceResponse ResourceResponse { get; set; }
     
     public ResourceEntity(IHttpClientFactory httpClientFactory, ILogger log, IAzureAuthProvider azureAuthProvider)
     {
@@ -42,19 +42,22 @@ public class ResourceEntity : IResourceEntity
         _httpClientFactory = httpClientFactory;
         _log = log;
     }
-
-    public bool GetSchedule()
-    {
-        return Scheduled;
-    }
     
+    /// <summary>
+    /// Perform initial tasks like checking the Reaper Tag and setting the Entity status to scheduled
+    /// </summary>
+    /// <param name="resourceId">Azure Resource Id</param>
     public async Task CreateResource(string resourceId)
     {
+        // Set resource id
         ResourceId = resourceId;
         
-        if (await CheckReaperIdentifierTag("Reaper_Scheduled"))
+        // Check if the Reaper Lifetime tag was set
+        // Only if this tag exists the Azure Reaper will to its thing
+        if (await CheckReaperTagAsync("Reaper_Lifetime"))
         {
-            _log.LogInformation("Set status to scheduled");
+            _log.LogInformation("Set entity status to scheduled");
+            // Set status to scheduled
             Scheduled = true;
             return;
         }
@@ -62,26 +65,30 @@ public class ResourceEntity : IResourceEntity
         Scheduled = false;
     }
 
-    public async Task<bool> CheckReaperIdentifierTag(string tag)
+    /// <summary>
+    /// Checking if the required tag was set to identify if this Azure Resource Group should be deleted or not
+    /// </summary>
+    /// <param name="tag">Reaper Lifetime Tag</param>
+    /// <returns>bool</returns>
+    public async Task<bool> CheckReaperTagAsync(string tag)
     {
-        var resourceGroupResponse = await _azureAuthProvider.GetResourceAsync(ResourceId);
+        ResourceResponse = await _azureAuthProvider.GetResourceAsync(ResourceId);
         
-        // Checking if the required tag was set to identify if this Azure Resource Group should be deleted or not
-        if (resourceGroupResponse != null && resourceGroupResponse.Tags.TryGetValue("Reaper_Scheduled", out var tagValue) && tagValue == "true")
+        if (ResourceResponse != null && ResourceResponse.Tags.TryGetValue("Reaper_Scheduled", out var tagValue) && tagValue == "true")
         {
-            _log.LogInformation("Required tag is set. Continue with Reaper appointment");
+            _log.LogInformation("Required tag '{Tag}' is set. Continue with Reaper appointment", tag);
             return true;
         }
-        _log.LogInformation("Required tag is not set");
+        _log.LogInformation("Required tag '{Tag}' is not set", tag);
         return false;
     }
     
-    public void DeleteResource()
+    public bool GetSchedule()
     {
-        throw new NotImplementedException();
+        return Scheduled;
     }
-
-    public Task CheckReaperTag()
+    
+    public void DeleteResource()
     {
         throw new NotImplementedException();
     }

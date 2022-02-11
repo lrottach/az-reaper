@@ -1,8 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using System;
-using Azure.Messaging.EventGrid;
 using AzureReaper.Functions.Entities;
 using AzureReaper.Functions.Models;
 using Microsoft.Extensions.Logging;
