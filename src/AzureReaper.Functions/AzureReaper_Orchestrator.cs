@@ -23,10 +23,11 @@ public class OrchestratorFunction
         var entityId = new EntityId(nameof(ResourceEntity), data.EventSubject.Replace("/", ""));
         // Create new Proxy to interact with DurableEntity
         var proxy = context.CreateEntityProxy<IResourceEntity>(entityId);
-        await proxy.CreateAsync(data.EventSubject);
+        await proxy.InitializeEntityAsync(data.EventSubject);
 
         if (await proxy.GetScheduleAsync())
         {
+            await proxy.ApplyApprovalTagAsync();
             return;
         }
         
