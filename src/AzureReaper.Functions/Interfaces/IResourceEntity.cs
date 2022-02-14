@@ -4,8 +4,9 @@ namespace AzureReaper.Functions.Interfaces;
 
 public interface IResourceEntity
 {
-    public bool GetSchedule();
-    public Task CreateResource(string resourceId);
-    public void DeleteResource();
+    public Task<bool> GetScheduleAsync();
+    public Task CreateAsync(string resourceId);
+    public Task DeleteResource();
     public Task<bool> CheckReaperTagAsync(string tag);
+    public Task ApplyApprovalTagAsync(string tag);
 }

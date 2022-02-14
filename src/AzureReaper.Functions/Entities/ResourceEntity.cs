@@ -47,7 +47,7 @@ public class ResourceEntity : IResourceEntity
     /// Perform initial tasks like checking the Reaper Tag and setting the Entity status to scheduled
     /// </summary>
     /// <param name="resourceId">Azure Resource Id</param>
-    public async Task CreateResource(string resourceId)
+    public async Task CreateAsync(string resourceId)
     {
         // Set resource id
         ResourceId = resourceId;
@@ -56,7 +56,7 @@ public class ResourceEntity : IResourceEntity
         // Only if this tag exists the Azure Reaper will to its thing
         if (await CheckReaperTagAsync("Reaper_Lifetime"))
         {
-            _log.LogInformation("Set entity status to scheduled");
+            _log.LogInformation("Set entity status to scheduled for entity {EntityId}", Entity.Current.EntityId);
             // Set status to scheduled
             Scheduled = true;
             return;
@@ -82,13 +82,18 @@ public class ResourceEntity : IResourceEntity
         _log.LogInformation("Required tag '{Tag}' is not set", tag);
         return false;
     }
-    
-    public bool GetSchedule()
+
+    public Task ApplyApprovalTagAsync(string tag)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<bool> GetScheduleAsync()
     {
         return Scheduled;
     }
     
-    public void DeleteResource()
+    public Task DeleteResource()
     {
         throw new NotImplementedException();
     }
