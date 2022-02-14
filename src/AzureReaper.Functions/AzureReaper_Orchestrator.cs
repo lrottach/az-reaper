@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using AzureReaper.Functions.Entities;
+using AzureReaper.Functions.Interfaces;
 using AzureReaper.Functions.Models;
 using Microsoft.Extensions.Logging;
 
@@ -14,12 +15,21 @@ public class OrchestratorFunction
         [OrchestrationTrigger] IDurableOrchestrationContext context,
         ILogger log)
     {
+        // Receive and extract payload from EventGrid function
         EventPayload data = context.GetInput<EventPayload>();
         log.LogInformation("Started new orchestrator instance for Azure Resource: {ResourceId}", data.EventSubject);
 
+        // Create new DurableEntity
         var entityId = new EntityId(nameof(ResourceEntity), data.EventSubject.Replace("/", ""));
-        context.SignalEntity(entityId, "CreateResource", data.EventSubject);
+        // Create new Proxy to interact with DurableEntity
+        var proxy = context.CreateEntityProxy<IResourceEntity>(entityId);
+        await proxy.CreateAsync(data.EventSubject);
+
+        if (await proxy.GetScheduleAsync())
+        {
+            return;
+        }
         
-        bool scheduleStatus = await context.CallEntityAsync<bool>(entityId, "GetSchedule");
+        log.LogInformation("Entity {EntityId} was not scheduled. Exiting Orchestrator", data.EventSubject.Replace("/", ""));
     }
 }
