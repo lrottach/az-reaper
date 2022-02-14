@@ -5,6 +5,6 @@ namespace AzureReaper.Functions.Interfaces;
 
 public interface IAzureAuthProvider
 {
-    Task<string> GetAccessTokenAsync();
     Task<AzureResourceResponse> GetResourceAsync(string resourceId);
+    Task PatchResourceAsync(string resourceId, string tagName, string tagValue, AzureResourceResponse requestData);
 }
