@@ -8,8 +8,13 @@ using Microsoft.Extensions.Logging;
 
 namespace AzureReaper.Functions;
 
-public class OrchestratorFunction
+public static class OrchestratorFunction
 {
+    // Tag name which will be checked while entity initialization
+    private static string _reaperTagLifetime = "Reaper_Lifetime";
+    // Tag name which will be set after entity was scheduled
+    private static string _reaperTagApproval = "Reaper_Status";
+    
     [FunctionName("AzureReaper_Orchestrator")]
     public static async Task RunOrchestratorAsync(
         [OrchestrationTrigger] IDurableOrchestrationContext context,
@@ -23,14 +28,15 @@ public class OrchestratorFunction
         var entityId = new EntityId(nameof(ResourceEntity), data.EventSubject.Replace("/", ""));
         // Create new Proxy to interact with DurableEntity
         var proxy = context.CreateEntityProxy<IResourceEntity>(entityId);
-        await proxy.InitializeEntityAsync(data.EventSubject);
+        await proxy.InitializeEntityAsync(data.EventSubject, _reaperTagLifetime);
 
         if (await proxy.GetScheduleAsync())
         {
-            await proxy.ApplyApprovalTagAsync();
+            log.LogWarning("Orchestrator: Entity was scheduled. Continue with execution");
+            await proxy.ApplyApprovalTagAsync(_reaperTagApproval);
             return;
         }
         
-        log.LogInformation("Entity {EntityId} was not scheduled. Exiting Orchestrator", data.EventSubject.Replace("/", ""));
+        log.LogWarning("Orchestrator: Entity {EntityId} was not scheduled. Exiting Orchestrator", data.EventSubject.Replace("/", ""));
     }
 }

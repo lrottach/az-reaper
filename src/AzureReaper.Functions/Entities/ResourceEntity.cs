@@ -20,8 +20,6 @@ public class ResourceEntity : IResourceEntity
     private readonly ILogger _log;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IAzureAuthProvider _azureAuthProvider;
-    private readonly string _azureStatusTag = "Reaper_Status";
-    private readonly string _azureLifetimeTag = "Reaper_Lifetime";
     
     [JsonProperty("scheduledDeath")]
     public DateTime ScheduledDeath { get; set; }
@@ -38,6 +36,9 @@ public class ResourceEntity : IResourceEntity
     [JsonProperty("resourceResponse")]
     public AzureResourceResponse ResourceResponse { get; set; }
     
+    [JsonProperty("lifetime")]
+    public int Lifetime { get; set; }
+    
     public ResourceEntity(IHttpClientFactory httpClientFactory, ILogger log, IAzureAuthProvider azureAuthProvider)
     {
         _azureAuthProvider = azureAuthProvider;
@@ -49,14 +50,14 @@ public class ResourceEntity : IResourceEntity
     /// Perform initial tasks like checking the Reaper Tag and setting the Entity status to scheduled
     /// </summary>
     /// <param name="resourceId">Azure Resource Id</param>
-    public async Task InitializeEntityAsync(string resourceId)
+    public async Task InitializeEntityAsync(string resourceId, string tagName)
     {
         // Set resource id
         ResourceId = resourceId;
         
         // Check if the Reaper Lifetime tag was set
         // Only if this tag exists the Azure Reaper will to its thing
-        if (await CheckReaperTagAsync(_azureLifetimeTag))
+        if (await CheckReaperTagAsync(tagName))
         {
             _log.LogInformation("Set entity status to scheduled for entity {EntityId}", Entity.Current.EntityId);
             // Set status to scheduled
@@ -70,24 +71,24 @@ public class ResourceEntity : IResourceEntity
     /// <summary>
     /// Checking if the required tag was set to identify if this Azure Resource Group should be deleted or not
     /// </summary>
-    /// <param name="tag">Reaper Lifetime Tag</param>
+    /// <param name="tagName">Reaper Lifetime Tag</param>
     /// <returns>bool</returns>
-    public async Task<bool> CheckReaperTagAsync(string tag)
+    public async Task<bool> CheckReaperTagAsync(string tagName)
     {
         ResourceResponse = await _azureAuthProvider.GetResourceAsync(ResourceId);
         
-        if (ResourceResponse != null && ResourceResponse.Tags.TryGetValue("Reaper_Scheduled", out var tagValue) && tagValue == "true")
+        if (ResourceResponse != null && ResourceResponse.Tags.TryGetValue("Reaper_Lifetime", out var tagValue) && tagValue == "60")
         {
-            _log.LogInformation("Required tag '{Tag}' is set. Continue with Reaper appointment", tag);
+            _log.LogInformation("Required tag '{Tag}' is set. Continue with Reaper appointment", tagName);
             return true;
         }
-        _log.LogInformation("Required tag '{Tag}' is not set", tag);
+        _log.LogInformation("Required tag '{Tag}' is not set", tagName);
         return false;
     }
 
-    public async Task ApplyApprovalTagAsync()
+    public async Task ApplyApprovalTagAsync(string tagName)
     {
-        await _azureAuthProvider.PatchResourceAsync(ResourceId, _azureStatusTag, "Approved", ResourceResponse);
+        await _azureAuthProvider.PatchResourceAsync(ResourceId, tagName, "Approved", ResourceResponse);
     }
 
     public async Task<bool> GetScheduleAsync()
