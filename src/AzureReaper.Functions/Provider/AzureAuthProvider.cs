@@ -29,7 +29,7 @@ public class AzureAuthProvider : IAzureAuthProvider
 
     private async Task<string> GetAccessTokenAsync()
     {
-        _log.LogInformation("AzureAuthProvider: Starting to acquire access token for Azure REST API");
+        // _log.LogInformation("AzureAuthProvider: Starting to acquire access token for Azure REST API");
         var credential = new DefaultAzureCredential();
         var accessToken = await credential
             .GetTokenAsync(new TokenRequestContext(new[] { "https://management.core.windows.net/.default" }));
@@ -38,7 +38,7 @@ public class AzureAuthProvider : IAzureAuthProvider
 
     public async Task<AzureResourceResponse> GetResourceAsync(string resourceId)
     {
-        _log.LogInformation("AzureAuthProvider: Trying to get response for resource: {ResourceId}", resourceId);
+        // _log.LogInformation("AzureAuthProvider: Trying to get response for resource: {ResourceId}", resourceId);
         string accessToken = GetAccessTokenAsync().Result;
         string requestUri = resourceId + ApiVersion;
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
