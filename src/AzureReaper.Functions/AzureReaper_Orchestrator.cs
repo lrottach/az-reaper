@@ -1,3 +1,5 @@
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -20,14 +22,22 @@ public static class OrchestratorFunction
 
         // Create new DurableEntity
         var entityId = new EntityId(nameof(ResourceEntity), data.EventSubject.Replace("/", ""));
+        
         // Create new Proxy to interact with DurableEntity
         var proxy = context.CreateEntityProxy<IResourceEntity>(entityId);
-        await proxy.InitializeEntityAsync(data.EventSubject, _reaperTagLifetime);
+        await proxy.InitializeEntityAsync(data);
 
+        // Continue only if the entity was successfully scheduled during initialization
         if (await proxy.GetScheduleAsync())
         {
-            log.LogWarning("Orchestrator: Entity was scheduled. Continue with execution");
-            await proxy.ApplyApprovalTagAsync(_reaperTagApproval);
+            await proxy.ApplyApprovalTagAsync(data.ReaperApprovalTagName);
+            
+            // Get lifetime from entity and schedule timer
+            int lifetime = await proxy.GetLifetime();
+            DateTime deadline = context.CurrentUtcDateTime.AddMinutes(lifetime);
+            await context.CreateTimer(deadline, CancellationToken.None);
+            await proxy.DeleteResource();
+            log.LogInformation("Finished execution");
             return;
         }
         
