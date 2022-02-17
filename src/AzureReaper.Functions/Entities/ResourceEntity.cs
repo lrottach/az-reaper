@@ -18,7 +18,6 @@ namespace AzureReaper.Functions.Entities;
 public class ResourceEntity : IResourceEntity
 {
     private readonly ILogger _log;
-    private readonly IHttpClientFactory _httpClientFactory;
     private readonly IAzureAuthProvider _azureAuthProvider;
     
     [JsonProperty("scheduledDeath")]
@@ -39,13 +38,12 @@ public class ResourceEntity : IResourceEntity
     [JsonProperty("lifetime")]
     public int Lifetime { get; set; }
     
-    public ResourceEntity(IHttpClientFactory httpClientFactory, ILogger log, IAzureAuthProvider azureAuthProvider)
+    public ResourceEntity(ILogger log, IAzureAuthProvider azureAuthProvider)
     {
         _azureAuthProvider = azureAuthProvider;
-        _httpClientFactory = httpClientFactory;
         _log = log;
     }
-    
+
     /// <summary>
     /// Perform initial tasks like checking the Reaper Tag and setting the Entity status to scheduled
     /// </summary>
@@ -106,7 +104,12 @@ public class ResourceEntity : IResourceEntity
         return Task.FromResult(Scheduled);
     }
     
-    public Task DeleteResource()
+    public async Task DeleteResource()
+    {
+        _log.LogInformation("Started deletion tasks for resource {ResourceId}", ResourceId);
+        await _azureAuthProvider.DeleteResourceAsync(ResourceId);
+        Entity.Current.DeleteState();
+    }
 
     public Task<int> GetLifetime()
     {
