@@ -19,8 +19,8 @@ public class AzureAuthProvider : IAzureAuthProvider
 {
     private readonly ILogger _log;
     private readonly HttpClient _httpClient;
-    private static string ApiVersion = "?api-version=2014-04-01-preview";
-        
+    private static readonly string ApiVersion = "?api-version=2014-04-01-preview";
+
     public AzureAuthProvider(ILogger log, IHttpClientFactory httpClientFactory)
     {
         _log = log;
@@ -49,7 +49,7 @@ public class AzureAuthProvider : IAzureAuthProvider
     {
         string accessToken = GetAccessTokenAsync().Result;
         string requestUri = resourceId + ApiVersion;
-        
+
         // Add new tag to existing resource data
         requestData.Tags.Add(tagName, tagValue);
         var jsonData = JsonConvert.SerializeObject(requestData);
@@ -57,5 +57,14 @@ public class AzureAuthProvider : IAzureAuthProvider
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         await _httpClient.PatchAsync(requestUri, requestContent);
+    }
+
+    public async Task DeleteResourceAsync(string resourceId)
+    {
+        string accessToken = GetAccessTokenAsync().Result;
+        string requestUri = resourceId + ApiVersion;
+
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        await _httpClient.DeleteAsync(requestUri);
     }
 }
