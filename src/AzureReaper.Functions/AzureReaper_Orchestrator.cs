@@ -10,11 +10,6 @@ namespace AzureReaper.Functions;
 
 public static class OrchestratorFunction
 {
-    // Tag name which will be checked while entity initialization
-    private static string _reaperTagLifetime = "Reaper_Lifetime";
-    // Tag name which will be set after entity was scheduled
-    private static string _reaperTagApproval = "Reaper_Status";
-    
     [FunctionName("AzureReaper_Orchestrator")]
     public static async Task RunOrchestratorAsync(
         [OrchestrationTrigger] IDurableOrchestrationContext context,
@@ -22,7 +17,6 @@ public static class OrchestratorFunction
     {
         // Receive and extract payload from EventGrid function
         EventPayload data = context.GetInput<EventPayload>();
-        log.LogInformation("Started new orchestrator instance for Azure Resource: {ResourceId}", data.EventSubject);
 
         // Create new DurableEntity
         var entityId = new EntityId(nameof(ResourceEntity), data.EventSubject.Replace("/", ""));

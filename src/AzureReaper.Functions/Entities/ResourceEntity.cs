@@ -49,22 +49,23 @@ public class ResourceEntity : IResourceEntity
     /// <summary>
     /// Perform initial tasks like checking the Reaper Tag and setting the Entity status to scheduled
     /// </summary>
-    /// <param name="resourceId">Azure Resource Id</param>
-    public async Task InitializeEntityAsync(string resourceId, string tagName)
+    public async Task InitializeEntityAsync(EventPayload eventPayload)
     {
         // Set resource id
-        ResourceId = resourceId;
+        ResourceId = eventPayload.EventSubject;
         
         // Check if the Reaper Lifetime tag was set
         // Only if this tag exists the Azure Reaper will to its thing
-        if (await CheckReaperTagAsync(tagName))
+        if (await CheckReaperTagAsync(eventPayload.ReaperLifetimeTagName))
         {
-            _log.LogInformation("Set entity status to scheduled for entity {EntityId}", Entity.Current.EntityId);
+            _log.LogInformation("Set entity status to scheduled for entity {ResourceId}", ResourceId);
+            
             // Set status to scheduled
             Scheduled = true;
             return;
         }
 
+        _log.LogWarning("Reaper lifetime tag was not found or does not contain a valid integer");
         Scheduled = false;
     }
 
@@ -77,18 +78,27 @@ public class ResourceEntity : IResourceEntity
     {
         ResourceResponse = await _azureAuthProvider.GetResourceAsync(ResourceId);
         
-        if (ResourceResponse != null && ResourceResponse.Tags.TryGetValue("Reaper_Lifetime", out var tagValue) && tagValue == "60")
+        // Check if response is valid and contains the required reaper lifetime tag
+        if (ResourceResponse != null && ResourceResponse.Tags.ContainsKey(tagName))
         {
-            _log.LogInformation("Required tag '{Tag}' is set. Continue with Reaper appointment", tagName);
-            return true;
+            _log.LogInformation("Found Reaper lifetime tag '{TagName}' on resource {ResourceId}", tagName, ResourceId);
+            // Check if the reaper lifetime tag contains a valid integer
+            if (ResourceResponse.Tags.TryGetValue(tagName, out var tagValue) && int.TryParse(tagValue, out var tagValueAsInt))
+            {
+                Lifetime = tagValueAsInt;
+                _log.LogInformation("Reaper lifetime tag on resource {ResourceId}, contains a valid integer '{Lifetime}'", ResourceId, Lifetime);
+                Entity.Current.DeleteState();
+                return true;
+            }
         }
-        _log.LogInformation("Required tag '{Tag}' is not set", tagName);
+        _log.LogWarning("Entity initialization failed. Resource {ResourceId} has no lifetime tag set", ResourceId);
         return false;
     }
 
     public async Task ApplyApprovalTagAsync(string tagName)
     {
         await _azureAuthProvider.PatchResourceAsync(ResourceId, tagName, "Approved", ResourceResponse);
+        _log.LogInformation("Applied status tag '{TagName}' to current resource {ResourceId}", tagName, ResourceId);
     }
 
     public async Task<bool> GetScheduleAsync()
