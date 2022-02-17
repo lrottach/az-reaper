@@ -101,14 +101,16 @@ public class ResourceEntity : IResourceEntity
         _log.LogInformation("Applied status tag '{TagName}' to current resource {ResourceId}", tagName, ResourceId);
     }
 
-    public async Task<bool> GetScheduleAsync()
+    public Task<bool> GetScheduleAsync()
     {
-        return Scheduled;
+        return Task.FromResult(Scheduled);
     }
     
     public Task DeleteResource()
+
+    public Task<int> GetLifetime()
     {
-        throw new NotImplementedException();
+        return Task.FromResult(Lifetime);
     }
 
     [FunctionName(nameof(ResourceEntity))]
