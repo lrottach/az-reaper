@@ -7,4 +7,5 @@ public interface IAzureAuthProvider
 {
     Task<AzureResourceResponse> GetResourceAsync(string resourceId);
     Task PatchResourceAsync(string resourceId, string tagName, string tagValue, AzureResourceResponse requestData);
+    Task DeleteResourceAsync(string resourceId);
 }
