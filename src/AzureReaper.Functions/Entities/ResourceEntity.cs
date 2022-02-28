@@ -65,6 +65,7 @@ public class ResourceEntity : IResourceEntity
 
         _log.LogWarning("Reaper lifetime tag was not found or does not contain a valid integer");
         Scheduled = false;
+        Entity.Current.DeleteState();
     }
 
     /// <summary>
@@ -85,7 +86,6 @@ public class ResourceEntity : IResourceEntity
             {
                 Lifetime = tagValueAsInt;
                 _log.LogInformation("Reaper lifetime tag on resource {ResourceId}, contains a valid integer '{Lifetime}'", ResourceId, Lifetime);
-                Entity.Current.DeleteState();
                 return true;
             }
         }
