@@ -9,7 +9,7 @@ on:
     branches: [ main ]
 
 env:
-  AZURE_FUNCTIONAPP_NAME: azure-reaper(development)
+  AZURE_FUNCTIONAPP_NAME: azure-reaper
   AZURE_FUNCTIONAPP_PACKAGE_PATH: 'src/AzureReaper.Functions'  
   DOTNET_VERSION: '6.0.101'
 
