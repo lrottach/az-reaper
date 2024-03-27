@@ -1,9 +1,8 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/dotnet
 {
-	"name": "C# (.NET)",
+	"name": "Azure Reaper Codespace",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/dotnet:1-8.0-bookworm",
 	"features": {
 		"ghcr.io/devcontainers/features/azure-cli:1": {
 			"installBicep": true,
@@ -14,20 +13,11 @@
 		},
 		"ghcr.io/devcontainers/features/powershell:1": {
 			"version": "latest"
-		},
-		"ghcr.io/jlaundry/devcontainer-features/azure-functions-core-tools:1": {
-			"version": "latest"
-		},
-		"ghcr.io/azure/azure-dev/azd:0": {
-			"version": "stable"
 		}
-	}
-
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
+	},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [5000, 5001],
+	"forwardPorts": [3000, 3001],
 	// "portsAttributes": {
 	//		"5001": {
 	//			"protocol": "https"
@@ -42,4 +32,8 @@
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
+
+	"hostRequirements": {
+		"memory": "8gb"
+	}
 }
