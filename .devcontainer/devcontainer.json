@@ -46,7 +46,8 @@
 				"ms-azuretools.vscode-bicep",
 				"ms-vscode.vscode-node-azure-pack",
 				"vscodevim.vim",
-				"ms-azuretools.azure-dev"
+				"ms-azuretools.azure-dev",
+				"ms-azuretools.vscode-docker"
 			]
 		}
 	}
