@@ -49,7 +49,10 @@
 				"ms-vscode.vscode-node-azure-pack",
 				"vscodevim.vim",
 				"ms-azuretools.azure-dev",
-				"ms-azuretools.vscode-docker"
+				"ms-azuretools.vscode-docker",
+				"GitHub.copilot",
+				"GitHub.copilot-chat",
+				"github.vscode-github-actions"
 			]
 		}
 	}
