@@ -35,5 +35,19 @@
 
 	"hostRequirements": {
 		"memory": "8gb"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.azurecli",
+				"ms-vscode.powershell",
+				"ms-dotnettools.csharp",
+				"ms-dotnettools.vscode-dotnet-runtime",
+				"ms-azuretools.vscode-bicep",
+				"ms-vscode.vscode-node-azure-pack",
+				"vscodevim.vim",
+				"ms-azuretools.azure-dev"
+			]
+		}
 	}
 }
