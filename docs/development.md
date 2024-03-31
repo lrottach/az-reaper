@@ -16,3 +16,17 @@ I prefer running Azurite for local development using Docker. You can run Azurite
 ```bash
 docker run -p 10000:10000 -p 10001:10001 -p 10002:10002 mcr.microsoft.com/azure-storage/azurite
 ```
+
+### Local Settings
+The Azure Functions Core Tools uses a `local.settings.json` file to store local settings.
+Create a `local.settings.json` file in the root of the project with the following content:
+
+```json
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
+  }
+}
+```
