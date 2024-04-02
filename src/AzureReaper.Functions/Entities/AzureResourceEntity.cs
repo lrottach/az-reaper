@@ -5,7 +5,6 @@ using Microsoft.DurableTask;
 
 namespace AzureReaper.Function.Entities;
 
-
 [JsonObject(MemberSerialization.OptIn)]
 public class AzureResourceEntity
 {
