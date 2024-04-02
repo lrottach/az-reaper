@@ -348,4 +348,4 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-.mono/registry/CurrentUser/software/microsoft/csdevkit/v1/pids/5428_133563869260290398/values.xml
+.mono/
