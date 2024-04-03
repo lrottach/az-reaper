@@ -7,5 +7,5 @@ namespace AzureReaper.Function.Services;
 
 public class AzureResourceService
 {
-
+    private DefaultAzureCredential Credential { get; } = new();
 }

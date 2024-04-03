@@ -1,7 +1,5 @@
 ﻿using Microsoft.Azure.Functions.Worker;
 using Newtonsoft.Json;
-using Microsoft.Azure.Functions.Worker.Extensions.DurableTask;
-using Microsoft.DurableTask;
 
 namespace AzureReaper.Function.Entities;
 
@@ -10,6 +8,9 @@ public class AzureResourceEntity
 {
     [JsonProperty("value")]
     public int CurrentValue { get; set; }
+
+    [JsonProperty("subscriptionId")]
+    public string SubscriptionId { get; set; }
 
     public void Add(int amount) => this.CurrentValue += amount;
 
