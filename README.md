@@ -1,5 +1,5 @@
 ![Azure Reaper banner](./assets/reaper_banner.png)
----
+
 # Azure Reaper
 
 **In the age-old dance of creation and destruction, behold Azure Reaper, a guardian wrought in code and cloud. Its purpose noble, it wields the power to vanquish Azure resources marked by time’s decree, ensuring realms of development and testing stand uncluttered, their legacies preserved in the annals of digital lore.**
