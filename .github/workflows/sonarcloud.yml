@@ -43,6 +43,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"lrottach_az-reaper" /o:"lrottach" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-          dotnet build ./src/AzureReaper.Functions/
+          $projectBaseDir = (Get-Location).Path
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"lrottach_az-reaper" /o:"lrottach" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.projectBaseDir="$projectBaseDir"
+          dotnet restore ./src/
+          dotnet build ./src/
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
