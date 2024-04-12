@@ -1,0 +1,70 @@
+### Azure EventGrid - Local development
+POST http://localhost:7071/runtime/webhooks/EventGrid?functionName=eventGridTrigger
+Content-Type: application/json
+aeg-event-type: Notification
+
+[
+	{
+		"subject": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/test5",
+		"eventType": "Microsoft.Resources.ResourceWriteSuccess",
+		"id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+		"data": {
+			"authorization": {
+				"scope": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/test5",
+				"action": "Microsoft.Resources/subscriptions/resourceGroups/write",
+				"evidence": {
+					"role": "Contributor",
+					"roleAssignmentScope": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+					"roleAssignmentId": "",
+					"roleDefinitionId": "",
+					"principalId": "",
+					"principalType": "User"
+				}
+			},
+			"claims": {
+				"aud": "https://management.core.windows.net/",
+				"iss": "https://sts.windows.net/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/",
+				"iat": "",
+				"nbf": "",
+				"exp": "",
+				"http://schemas.microsoft.com/claims/authnclassreference": "1",
+				"aio": "",
+				"http://schemas.microsoft.com/claims/authnmethodsreferences": "pwd,mfa",
+				"appid": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				"appidacr": "2",
+				"groups": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx,xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				"ipaddr": "",
+				"name": "Infrastructure Admin",
+				"http://schemas.microsoft.com/identity/claims/objectidentifier": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				"puid": "",
+				"rh": "",
+				"http://schemas.microsoft.com/identity/claims/scope": "user_impersonation",
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": "",
+				"http://schemas.microsoft.com/identity/claims/tenantid": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name": "lrottach@darkcontoso.onmicrosoft.com",
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn": "lrottach@darkcontoso.onmicrosoft.com",
+				"uti": "",
+				"ver": "1.0",
+				"wids": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				"xms_tcdt": ""
+			},
+			"correlationId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+			"httpRequest": {
+				"clientRequestId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				"clientIpAddress": "",
+				"method": "PUT",
+				"url": "https://management.azure.com/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/test5?api-version=2014-04-01-preview"
+			},
+			"resourceProvider": "Microsoft.Resources",
+			"resourceUri": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/test5",
+			"operationName": "Microsoft.Resources/subscriptions/resourceGroups/write",
+			"status": "Succeeded",
+			"subscriptionId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+			"tenantId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+		},
+		"dataVersion": "2",
+		"metadataVersion": "1",
+		"eventTime": "2022-01-10T20:28:25.7427087Z",
+		"topic": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+	}
+]
