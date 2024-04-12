@@ -1,5 +1,5 @@
 ### Azure EventGrid - Local development
-POST http://localhost:7071/runtime/webhooks/EventGrid?functionName=eventGridTrigger
+POST http://localhost:7071/runtime/webhooks/EventGrid?functionName=EventGridTrigger
 Content-Type: application/json
 aeg-event-type: Notification
 
