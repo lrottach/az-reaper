@@ -1,18 +1,15 @@
 // Default URL for triggering event grid function in the local environment.
 // http://localhost:7071/runtime/webhooks/EventGrid?functionName={functionname}
 
-using System;
-using Azure.Messaging;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
-using Microsoft.DurableTask.Client;
-using DurableTask.Core.Entities;
+using Azure.Messaging.EventGrid;
 using AzureReaper.Function.Entities;
-using Microsoft.DurableTask;
-using Microsoft.DurableTask.Entities;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask.Client;
 using Microsoft.DurableTask.Client.Entities;
+using Microsoft.DurableTask.Entities;
+using Microsoft.Extensions.Logging;
 
-namespace AzureReaper.Function
+namespace AzureReaper
 {
     public class EventGridTrigger
     {
@@ -24,20 +21,20 @@ namespace AzureReaper.Function
         }
 
         [Function(nameof(EventGridTrigger))]
-        public async Task Run([EventGridTrigger] CloudEvent cloudEvent,
+        public async Task Run([EventGridTrigger] EventGridEvent eventGridEvent,
         [DurableClient] DurableTaskClient client)
         {
-            _logger.LogInformation("Event type: {type}, Event subject: {subject}", cloudEvent.Type, cloudEvent.Subject);
+            _logger.LogInformation("Event type: {type}, Event subject: {subject}", eventGridEvent.EventType, eventGridEvent.Subject);
 
             // Make sure function will only continue for the correct event types
-            if (cloudEvent.Type != "Microsoft.Resources.ResourceWriteSuccess")
+            if (eventGridEvent.Subject != "Microsoft.Resources.ResourceWriteSuccess")
             {
-                _logger.LogInformation("You shall not pass: {EventType}", cloudEvent.Type);
+                _logger.LogInformation("You shall not pass: {EventType}", eventGridEvent.EventType);
                 return;
             }
 
             // Create new entity for current event
-            EntityInstanceId entityId = new EntityInstanceId(nameof(AzureResourceEntity), cloudEvent.Subject.Replace("/", ""));
+            EntityInstanceId entityId = new EntityInstanceId(nameof(AzureResourceEntity), eventGridEvent.Subject.Replace("/", ""));
 
             // Read entities state to process later
             EntityMetadata<AzureResourceEntity>? entityState = await client.Entities.GetEntityAsync<AzureResourceEntity>(entityId);
