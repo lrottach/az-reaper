@@ -1,6 +1,6 @@
 [
 	{
-		"subject": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/test5",
+		"subject": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/test2",
 		"eventType": "Microsoft.Resources.ResourceWriteSuccess",
 		"id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 		"data": {
