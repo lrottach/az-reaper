@@ -40,9 +40,11 @@ namespace AzureReaper
             EntityMetadata<AzureResourceEntity>? entityState = await client.Entities.GetEntityAsync<AzureResourceEntity>(entityId);
 
             // If entity exists and is scheduled, nothing to do
-            if (entityState != null || entityState.State.Scheduled)
+            // if (entityState != null || entityState.State.Scheduled)
+            if (entityState != null)
             {
-                _logger.LogWarning("Entity for Resource Id '{ResourceId}' already exists and death was already scheduled", entityState.State.ResourceId);
+                _logger.LogWarning("Entity for Resource Id '{ResourceId}' already exists and death was already scheduled", entityState.Id);
+                return;
             }
 
             // Initialize entity
