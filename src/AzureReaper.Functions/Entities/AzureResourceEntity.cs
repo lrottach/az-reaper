@@ -6,17 +6,19 @@ namespace AzureReaper.Function.Entities;
 [JsonObject(MemberSerialization.OptIn)]
 public class AzureResourceEntity
 {
-    [JsonProperty("value")]
-    public int CurrentValue { get; set; }
+    [JsonProperty("resourceId")]
+    public string? ResourceId { get; set; }
 
     [JsonProperty("subscriptionId")]
-    public string SubscriptionId { get; set; }
+    public string? SubscriptionId { get; set; }
 
-    public void Add(int amount) => this.CurrentValue += amount;
+    [JsonProperty("scheduled")]
+    public bool Scheduled { get; set; }
 
-    public void Reset() => this.CurrentValue = 0;
+    public void InitializeEntity()
+    {
 
-    public int Get() => this.CurrentValue;
+    }
 
     [Function(nameof(AzureResourceEntity))]
     public static Task RunEntityAsync([EntityTrigger] TaskEntityDispatcher dispatcher)

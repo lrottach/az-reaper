@@ -1,6 +1,11 @@
+### Azure EventGrid - Local development
+POST http://localhost:7071/runtime/webhooks/EventGrid?functionName=EventGridTrigger
+Content-Type: application/json
+aeg-event-type: Notification
+
 [
 	{
-		"subject": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/test2",
+		"subject": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/test5",
 		"eventType": "Microsoft.Resources.ResourceWriteSuccess",
 		"id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 		"data": {
