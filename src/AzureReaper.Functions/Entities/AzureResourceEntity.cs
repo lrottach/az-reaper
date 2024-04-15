@@ -1,23 +1,22 @@
-﻿using Microsoft.Azure.Functions.Worker;
-using Newtonsoft.Json;
+﻿using AzureReaper.Function.Models;
+using Microsoft.Azure.Functions.Worker;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace AzureReaper.Function.Entities;
 
-[JsonObject(MemberSerialization.OptIn)]
 public class AzureResourceEntity
 {
-    [JsonProperty("resourceId")]
-    public string? ResourceId { get; set; }
+    [JsonPropertyName("resourcePayload")]
+    public ResourcePayload? ResourceData { get; set; }
 
-    [JsonProperty("subscriptionId")]
-    public string? SubscriptionId { get; set; }
-
-    [JsonProperty("scheduled")]
+    [JsonPropertyName("scheduled")]
     public bool Scheduled { get; set; }
 
-    public void InitializeEntity()
+    public void InitializeEntity(ResourcePayload resourcePayload)
     {
-
+        ResourceData = resourcePayload;
+        Console.WriteLine($"Entity initialized for Resource Id '{resourcePayload.ResourceId}'");
     }
 
     [Function(nameof(AzureResourceEntity))]
