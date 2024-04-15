@@ -3,11 +3,13 @@
 
 using Azure.Messaging.EventGrid;
 using AzureReaper.Function.Entities;
+using AzureReaper.Function.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
 using Microsoft.DurableTask.Client.Entities;
 using Microsoft.DurableTask.Entities;
 using Microsoft.Extensions.Logging;
+using AzureReaper.Function.Common;
 
 namespace AzureReaper
 {
@@ -48,7 +50,8 @@ namespace AzureReaper
             }
 
             // Initialize entity
-            await client.Entities.SignalEntityAsync(entityId, "InitializeEntity");
+            ResourcePayload resourcePayload = StringHandler.ExtractResourcePayload(eventGridEvent.Subject);
+            await client.Entities.SignalEntityAsync(entityId, "InitializeEntity", resourcePayload);
         }
     }
 }
