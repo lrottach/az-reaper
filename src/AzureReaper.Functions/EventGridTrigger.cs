@@ -29,6 +29,7 @@ namespace AzureReaper
             _logger.LogInformation("Event type: {type}, Event subject: {subject}", eventGridEvent.EventType, eventGridEvent.Subject);
 
             // Make sure function will only continue for the correct event types
+            // Additional validation in case, EventGrid filter wasn't configured correctly
             if (eventGridEvent.EventType != "Microsoft.Resources.ResourceWriteSuccess")
             {
                 _logger.LogInformation("You shall not pass: {EventType}", eventGridEvent.EventType);
