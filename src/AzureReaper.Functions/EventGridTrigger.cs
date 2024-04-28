@@ -46,7 +46,13 @@ namespace AzureReaper
             // if (entityState != null || entityState.State.Scheduled)
             if (entityState != null)
             {
-                _logger.LogWarning("Entity for Resource Id '{ResourceId}' already exists and death was already scheduled", entityState.Id);
+                _logger.LogWarning("Entity for Resource Id '{ResourceId}' already exists", entityState.Id);
+                
+                if (entityState.State.Scheduled)
+                {
+                    _logger.LogWarning("Entity for Resource Id '{ResourceId}' was already scheduled", entityState.Id);
+                }
+                
                 return;
             }
 
