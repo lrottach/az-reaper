@@ -1,29 +1,29 @@
-﻿using AzureReaper.Function.Models;
+﻿using System.Text.Json.Serialization;
+using AzureReaper.Function.Models;
+using AzureReaper.Interfaces;
+using AzureReaper.Services;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Extensions.DurableTask;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using DurableTask.Core.Entities;
-using Microsoft.DurableTask.Client.Entities;
-using Microsoft.DurableTask.Entities;
 
-namespace AzureReaper.Function.Entities;
+namespace AzureReaper.Entities;
 
 public class AzureResourceEntity
 {
+    private readonly IAzureResourceService _azureResourceService = new AzureResourceService();
+    
     [JsonPropertyName("resourcePayload")]
     private ResourcePayload? ResourceData { get; set; }
 
     [JsonPropertyName("scheduled")]
-    public bool Scheduled { get; set; }
+    public bool Scheduled { get; private set; }
 
-    public void InitializeEntity(ResourcePayload resourcePayload)
+    public async Task InitializeEntity(ResourcePayload resourcePayload)
     {
         ResourceData = resourcePayload;
-        Console.WriteLine($"Entity initialized for Resource Id '{resourcePayload.ResourceId}'");
+        Console.WriteLine($"[EntityTrigger] Entity initialized for Resource Id '{resourcePayload.ResourceId}'");
+        await _azureResourceService.GetAzureResourceGroup(ResourceData.SubscriptionId, ResourceData.ResourceGroup);
     }
     
-    private void Unschedule()
+    private void ClearEntity()
     {
         Scheduled = false;
         ResourceData = null;
