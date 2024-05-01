@@ -6,6 +6,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <!-- See for reason why we need this https://github.com/microsoft/durabletask-dotnet/issues/148#issuecomment-1729006827 -->
+  <Target Name="CopyGrpcNativeAssetsToOutDir" AfterTargets="Build">
+    <ItemGroup>
+      <NativeAssetToCopy Condition="$([MSBuild]::IsOSPlatform('OSX'))" Include="$(OutDir)runtimes/osx-arm64/native/*"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(NativeAssetToCopy)" DestinationFolder="$(OutDir).azurefunctions/runtimes/osx-arm64/native"/>
+  </Target>
+  
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Azure.Core" Version="1.38.0" />
