@@ -1,12 +1,13 @@
 ﻿using System.Text.Json.Serialization;
-using AzureReaper.Function.Models;
 using AzureReaper.Interfaces;
+using AzureReaper.Models;
 using AzureReaper.Services;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask.Entities;
 
 namespace AzureReaper.Entities;
 
-public class AzureResourceEntity
+public class AzureResourceEntity : TaskEntity<AzureResourceState>
 {
     private readonly IAzureResourceService _azureResourceService = new AzureResourceService();
     
