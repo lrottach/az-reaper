@@ -2,14 +2,14 @@
 // http://localhost:7071/runtime/webhooks/EventGrid?functionName={functionname}
 
 using Azure.Messaging.EventGrid;
+using AzureReaper.Common;
 using AzureReaper.Entities;
-using AzureReaper.Function.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
 using Microsoft.DurableTask.Client.Entities;
 using Microsoft.DurableTask.Entities;
 using Microsoft.Extensions.Logging;
-using AzureReaper.Function.Common;
+using AzureReaper.Models;
 
 namespace AzureReaper
 {

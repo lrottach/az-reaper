@@ -1,6 +1,6 @@
-﻿using AzureReaper.Function.Models;
+﻿using AzureReaper.Models;
 
-namespace AzureReaper.Function.Common;
+namespace AzureReaper.Common;
 
 public static class StringHandler
 {
