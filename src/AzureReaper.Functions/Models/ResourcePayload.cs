@@ -7,5 +7,5 @@ public class ResourcePayload : IResourcePayload
 {
     public required string? SubscriptionId { get; set; }
     public required string? ResourceId { get; set; }
-    public required string? ResourceGroup { get; set; }
+    public required string? ResourceGroupName { get; set; }
 }
