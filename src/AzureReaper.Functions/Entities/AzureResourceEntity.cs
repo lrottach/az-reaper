@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using AzureReaper.Interfaces;
+﻿using AzureReaper.Interfaces;
 using AzureReaper.Models;
 using AzureReaper.Services;
 using Microsoft.Azure.Functions.Worker;
@@ -9,26 +8,28 @@ namespace AzureReaper.Entities;
 
 public class AzureResourceEntity : TaskEntity<AzureResourceState>
 {
-    private readonly IAzureResourceService _azureResourceService = new AzureResourceService();
+    private readonly IAzureResourceService _azureResourceService;
     
-    [JsonPropertyName("resourcePayload")]
-    private ResourcePayload? ResourceData { get; set; }
+    private const string LifeTimeTagName = "LifeTimeInHours";
 
-    [JsonPropertyName("scheduled")]
-    public bool Scheduled { get; private set; }
-
+    public AzureResourceEntity(IAzureResourceService azureResourceService)
+    {
+        _azureResourceService = azureResourceService;
+    }
+    
     public async Task InitializeEntity(ResourcePayload resourcePayload)
     {
-        ResourceData = resourcePayload;
+        State.ResourceGroupName = resourcePayload.ResourceGroupName;
+        State.ResourceId = resourcePayload.ResourceId;
+        State.SubscriptionId = resourcePayload.SubscriptionId;
+        
         Console.WriteLine($"[EntityTrigger] Entity initialized for Resource Id '{resourcePayload.ResourceId}'");
-        await _azureResourceService.GetAzureResourceGroup(ResourceData.SubscriptionId, ResourceData.ResourceGroup);
+        // await _azureResourceService.GetAzureResourceGroup(State.SubscriptionId, State.ResourceGroupName);
     }
     
     private void ClearEntity()
     {
-        Scheduled = false;
-        ResourceData = null;
-        Console.WriteLine($"Entity unscheduled for Resource Id '{ResourceData?.ResourceId}'");
+        
     }
     
     [Function(nameof(AzureResourceEntity))]
