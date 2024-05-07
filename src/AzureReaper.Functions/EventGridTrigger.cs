@@ -39,11 +39,11 @@ namespace AzureReaper
             // if (entityState != null || entityState.State.Scheduled)
             if (entityState != null)
             {
-                if (entityState.State.Scheduled)
-                {
-                    logger.LogWarning("[EventGridTrigger] Entity for Resource Id '{ResourceId}' was already scheduled", entityState.Id);
-                    return;
-                }
+                // if (entityState.State.Scheduled)
+                // {
+                //     logger.LogWarning("[EventGridTrigger] Entity for Resource Id '{ResourceId}' was already scheduled", entityState.Id);
+                //     return;
+                // }
                 
                 logger.LogWarning("[EventGridTrigger] Entity for Resource Id '{ResourceId}' already exists, but death has not been scheduled", entityState.Id);
             }
