@@ -17,7 +17,6 @@
     <browser url="http://localhost:7071" />
     <method v="2">
       <option name="BuildFunctionsProject" enabled="true" />
-      <option name="RunAzuriteTask" enabled="true" />
     </method>
   </configuration>
 </component>
