@@ -1,0 +1,5 @@
+﻿<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Azure EventGrid - Local development" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" activateToolWindowBeforeRun="false" path="$PROJECT_DIR$/AzureReaper.Functions/Http/EventGridTrigger.http" requestIdentifier="Azure EventGrid - Local development" runType="Run single request">
+    <method v="2" />
+  </configuration>
+</component>
