@@ -2,34 +2,30 @@
 // http://localhost:7071/runtime/webhooks/EventGrid?functionName={functionname}
 
 using Azure.Messaging.EventGrid;
-using AzureReaper.Function.Entities;
+using AzureReaper.Common;
+using AzureReaper.Entities;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
 using Microsoft.DurableTask.Client.Entities;
 using Microsoft.DurableTask.Entities;
 using Microsoft.Extensions.Logging;
+using AzureReaper.Models;
 
 namespace AzureReaper
 {
-    public class EventGridTrigger
+    public class EventGridTrigger(ILogger<EventGridTrigger> logger)
     {
-        private readonly ILogger<EventGridTrigger> _logger;
-
-        public EventGridTrigger(ILogger<EventGridTrigger> logger)
-        {
-            _logger = logger;
-        }
-
         [Function(nameof(EventGridTrigger))]
         public async Task Run([EventGridTrigger] EventGridEvent eventGridEvent,
         [DurableClient] DurableTaskClient client)
         {
-            _logger.LogInformation("Event type: {type}, Event subject: {subject}", eventGridEvent.EventType, eventGridEvent.Subject);
+            logger.LogInformation("[EventGridTrigger] Event type: {type}, Event subject: {subject}", eventGridEvent.EventType, eventGridEvent.Subject);
 
             // Make sure function will only continue for the correct event types
+            // Additional validation in case, EventGrid filter wasn't configured correctly
             if (eventGridEvent.EventType != "Microsoft.Resources.ResourceWriteSuccess")
             {
-                _logger.LogInformation("You shall not pass: {EventType}", eventGridEvent.EventType);
+                logger.LogInformation("[EventGridTrigger] You shall not pass: {EventType}", eventGridEvent.EventType);
                 return;
             }
 
@@ -43,12 +39,18 @@ namespace AzureReaper
             // if (entityState != null || entityState.State.Scheduled)
             if (entityState != null)
             {
-                _logger.LogWarning("Entity for Resource Id '{ResourceId}' already exists and death was already scheduled", entityState.Id);
-                return;
+                // if (entityState.State.Scheduled)
+                // {
+                //     logger.LogWarning("[EventGridTrigger] Entity for Resource Id '{ResourceId}' was already scheduled", entityState.Id);
+                //     return;
+                // }
+                
+                logger.LogWarning("[EventGridTrigger] Entity for Resource Id '{ResourceId}' already exists, but death has not been scheduled", entityState.Id);
             }
 
             // Initialize entity
-            await client.Entities.SignalEntityAsync(entityId, "InitializeEntity");
+            ResourcePayload resourcePayload = StringHandler.ExtractResourcePayload(eventGridEvent.Subject);
+            await client.Entities.SignalEntityAsync(entityId, "InitializeEntity", resourcePayload);
         }
     }
 }
