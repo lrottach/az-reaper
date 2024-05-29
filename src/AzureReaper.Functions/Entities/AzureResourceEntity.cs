@@ -26,9 +26,7 @@ public class AzureResourceEntity : TaskEntity<AzureResourceState>
         State.SubscriptionId = resourcePayload.SubscriptionId;
         State.Scheduled = false;
         
-        Console.WriteLine($"[EntityTrigger] Entity initialized for Resource Id '{resourcePayload.ResourceId}'");
-        // _logger.LogInformation("[EntityTrigger] Entity initialized for Resource Id '{resourceId}'", resourcePayload.ResourceId);
-        // await _azureResourceService.GetAzureResourceGroup(State.SubscriptionId, State.ResourceGroupName);
+        _logger.LogInformation("[EntityTrigger] Entity initialized for Resource Id '{resourceId}'", resourcePayload.ResourceId);
     }
     
     private void ClearEntity()
