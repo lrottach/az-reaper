@@ -31,9 +31,10 @@ namespace AzureReaper
             // Create new entity for current event
             EntityInstanceId entityId = new EntityInstanceId(nameof(AzureResourceEntity), eventGridEvent.Subject.Replace("/", ""));
             
-            // Initialize entity
-            ResourcePayload resourcePayload = StringHandler.ExtractResourcePayload(eventGridEvent.Subject);
-            await client.Entities.SignalEntityAsync(entityId, "InitializeEntity", resourcePayload);
-        }
+        // Build resource payload from event subject
+        ResourcePayload resourcePayload = StringHandler.ExtractResourcePayload(eventGridEvent.Subject);
+            
+        // Signal entity to initialize
+        await client.Entities.SignalEntityAsync(entityId, "InitializeEntityAsync", resourcePayload);
     }
 }

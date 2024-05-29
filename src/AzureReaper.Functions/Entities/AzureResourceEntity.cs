@@ -19,7 +19,7 @@ public class AzureResourceEntity : TaskEntity<AzureResourceState>
         _azureResourceService = azureResourceService;
     }
     
-    public async Task InitializeEntity(ResourcePayload resourcePayload)
+    public async Task InitializeEntityAsync(ResourcePayload resourcePayload)
     {
         State.ResourceGroupName = resourcePayload.ResourceGroupName;
         State.ResourceId = resourcePayload.ResourceId;
