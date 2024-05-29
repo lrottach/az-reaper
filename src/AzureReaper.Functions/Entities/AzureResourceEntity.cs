@@ -1,19 +1,21 @@
 ﻿using AzureReaper.Interfaces;
 using AzureReaper.Models;
-using AzureReaper.Services;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace AzureReaper.Entities;
 
 public class AzureResourceEntity : TaskEntity<AzureResourceState>
 {
+    private readonly ILogger _logger;
     private readonly IAzureResourceService _azureResourceService;
     
     private const string LifeTimeTagName = "LifeTimeInHours";
 
-    public AzureResourceEntity(IAzureResourceService azureResourceService)
+    public AzureResourceEntity(ILogger<AzureResourceEntity> logger, IAzureResourceService azureResourceService)
     {
+        _logger = logger;
         _azureResourceService = azureResourceService;
     }
     
@@ -22,9 +24,9 @@ public class AzureResourceEntity : TaskEntity<AzureResourceState>
         State.ResourceGroupName = resourcePayload.ResourceGroupName;
         State.ResourceId = resourcePayload.ResourceId;
         State.SubscriptionId = resourcePayload.SubscriptionId;
+        State.Scheduled = false;
         
-        Console.WriteLine($"[EntityTrigger] Entity initialized for Resource Id '{resourcePayload.ResourceId}'");
-        // await _azureResourceService.GetAzureResourceGroup(State.SubscriptionId, State.ResourceGroupName);
+        _logger.LogInformation("[EntityTrigger] Entity initialized for Resource Id '{resourceId}'", resourcePayload.ResourceId);
     }
     
     private void ClearEntity()

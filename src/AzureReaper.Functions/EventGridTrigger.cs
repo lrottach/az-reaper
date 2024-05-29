@@ -6,7 +6,6 @@ using AzureReaper.Common;
 using AzureReaper.Entities;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
-using Microsoft.DurableTask.Client.Entities;
 using Microsoft.DurableTask.Entities;
 using Microsoft.Extensions.Logging;
 using AzureReaper.Models;
@@ -31,23 +30,7 @@ namespace AzureReaper
 
             // Create new entity for current event
             EntityInstanceId entityId = new EntityInstanceId(nameof(AzureResourceEntity), eventGridEvent.Subject.Replace("/", ""));
-
-            // Read entities state to process later
-            EntityMetadata<AzureResourceEntity>? entityState = await client.Entities.GetEntityAsync<AzureResourceEntity>(entityId);
-
-            // If entity exists and is scheduled, nothing to do
-            // if (entityState != null || entityState.State.Scheduled)
-            if (entityState != null)
-            {
-                // if (entityState.State.Scheduled)
-                // {
-                //     logger.LogWarning("[EventGridTrigger] Entity for Resource Id '{ResourceId}' was already scheduled", entityState.Id);
-                //     return;
-                // }
-                
-                logger.LogWarning("[EventGridTrigger] Entity for Resource Id '{ResourceId}' already exists, but death has not been scheduled", entityState.Id);
-            }
-
+            
             // Initialize entity
             ResourcePayload resourcePayload = StringHandler.ExtractResourcePayload(eventGridEvent.Subject);
             await client.Entities.SignalEntityAsync(entityId, "InitializeEntity", resourcePayload);
