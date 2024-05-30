@@ -7,18 +7,14 @@ using AzureReaper.Common;
 
 namespace AzureReaper.Entities;
 
-public class AzureResourceEntity : TaskEntity<AzureResourceState>
+// ReSharper disable once ClassNeverInstantiated.Global
+public class AzureResourceEntity(ILogger<AzureResourceEntity> logger, IAzureResourceService azureResourceService)
+    : TaskEntity<AzureResourceState>
 {
-    private readonly ILogger _logger;
-    private readonly IAzureResourceService _azureResourceService;
-    
-    private const string LifeTimeTagName = "ReaperLifetime";
+    private readonly ILogger _logger = logger;
 
-    public AzureResourceEntity(ILogger<AzureResourceEntity> logger, IAzureResourceService azureResourceService)
-    {
-        _logger = logger;
-        _azureResourceService = azureResourceService;
-    }
+    private const string LifeTimeTagName = "ReaperLifetime";
+    private const string ApprovalTageName = "ReaperStatus";
 
     /// <summary>
     /// Initializes the AzureResourceEntity with the given resourcePayload.
@@ -44,9 +40,9 @@ public class AzureResourceEntity : TaskEntity<AzureResourceState>
         
         // Validate current Azure Resource Group
         _logger.LogInformation("[EntityTrigger] Start validation for Azure Resource Group eligibility for {rg}", resourcePayload.ResourceGroupName);
-        if (!await ValidateResourceGroupEligibility())
+        if (await ValidateResourceGroupEligibility())
         {
-            
+            await PrepareResourceGroup();
         }
     }
     
@@ -59,7 +55,7 @@ public class AzureResourceEntity : TaskEntity<AzureResourceState>
         try
         {
             // Call Azure Resource Service to get current resource group
-            var rg = await _azureResourceService.GetAzureResourceGroup(State.SubscriptionId, State.ResourceGroupName);
+            var rg = await azureResourceService.GetAzureResourceGroup(State.SubscriptionId, State.ResourceGroupName);
             
             // Validate the tags of the current Azure Resource Group
             if (TagHandler.CheckReaperTags(rg.Data.Tags, LifeTimeTagName))
@@ -76,6 +72,22 @@ public class AzureResourceEntity : TaskEntity<AzureResourceState>
             _logger.LogError(ex, "[EntityTrigger] Failed to validate resource group’s eligibility with subscription Id {subId} and name {name} due to an exception", State.SubscriptionId, State.ResourceGroupName);
             return false;
         }
+    }
+
+    // Apply required tags to the current Azure Resource Group to approve Reaper schedule
+    private async Task PrepareResourceGroup()
+    {
+        try
+        {
+            await azureResourceService.ApplyResourceGroupTags(State.SubscriptionId, State.ResourceGroupName,
+                ApprovalTageName, "Approved");
+            _logger.LogInformation("[EntityTrigger] Successfully applied approval tags to Id {subId} and name {name}", State.SubscriptionId, State.ResourceGroupName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[EntityTrigger] Failed to apply approval tags to Id {subId} and name {name} due to an exception", State.SubscriptionId, State.ResourceGroupName);
+            throw;
+        } 
     }
     
     [Function(nameof(AzureResourceEntity))]
