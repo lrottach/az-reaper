@@ -11,5 +11,4 @@ Azure Reaper is a sophisticated automation tool built on the robust foundation o
 The idea is based on Jeff Holan's great [functions-csharp-entities-grimreaper](https://github.com/jeffhollan/functions-csharp-entities-grimreaper), rewritten in a more simple form without the Twilio SMS part. 
 
 ## Status
-The Azure Reaper is currently under development.  
-Documentation, getting started and deployment guides will follow as soon as possible after the first release.
+Azure Reaper is under active development and is constantly evolving. The capabilities and performance of the project are continually being improved. As development progresses, comprehensive documentation, getting started guides, and deployment instructions will be provided. Your patience and contributions are greatly appreciated. Stay tuned for update!
