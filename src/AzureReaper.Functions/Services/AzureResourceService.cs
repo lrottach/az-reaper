@@ -37,4 +37,11 @@ public class AzureResourceService : IAzureResourceService
         await rg.AddTagAsync(tagName, tagValue);
         _logger.LogInformation("[AzureResourceService] Tags applied to Resource Group '{resourceGroup}'", resourceGroupName);
     }
+
+    public async Task DeleteResourceGroupAsync(string? subscriptionId, string? resourceGroupName)
+    {
+        var rg = await GetAzureResourceGroup(subscriptionId, resourceGroupName);
+        await rg.DeleteAsync(WaitUntil.Started);
+        _logger.LogInformation("[AzureResourceService] Resource Group '{resourceGroup}' deleted", resourceGroupName);
+    }
 }

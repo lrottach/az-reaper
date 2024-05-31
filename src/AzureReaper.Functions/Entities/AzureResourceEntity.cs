@@ -24,28 +24,29 @@ public class AzureResourceEntity(ILogger<AzureResourceEntity> logger, IAzureReso
     public async Task InitializeEntityAsync(ResourcePayload resourcePayload)
     {
         _logger.LogInformation("[EntityTrigger] Entity initialized for Resource Id '{resourceId}'", resourcePayload.ResourceId);
-        
+
         // Check if current entity is already scheduled
         if (State.Scheduled)
         {
             _logger.LogWarning("[EntityTrigger] Entity already scheduled for Resource Id '{resourceId}'. Skipping further steps...", resourcePayload.ResourceId);
             return;
         }
-        
-        // Write state
+
+        // Write entity state
         State.ResourceGroupName = resourcePayload.ResourceGroupName;
         State.ResourceId = resourcePayload.ResourceId;
         State.SubscriptionId = resourcePayload.SubscriptionId;
-        State.Scheduled = false;
-        
+        State.Scheduled = false; // Will be set to false by default
+
         // Validate current Azure Resource Group
         _logger.LogInformation("[EntityTrigger] Start validation for Azure Resource Group eligibility for {rg}", resourcePayload.ResourceGroupName);
         if (await ValidateResourceGroupEligibility())
         {
             await PrepareResourceGroup();
+            SetSchedule();
         }
     }
-    
+
     /// <summary>
     /// Validates the eligibility of the current Azure Resource Group.
     /// </summary>
@@ -56,14 +57,14 @@ public class AzureResourceEntity(ILogger<AzureResourceEntity> logger, IAzureReso
         {
             // Call Azure Resource Service to get current resource group
             var rg = await azureResourceService.GetAzureResourceGroup(State.SubscriptionId, State.ResourceGroupName);
-            
+
             // Validate the tags of the current Azure Resource Group
             if (TagHandler.CheckReaperTags(rg.Data.Tags, LifeTimeTagName))
             {
                 _logger.LogInformation("[EntityTrigger] Resource Group {rg} contains the valid tags to continue execution", rg.Data.Name);
                 return true;
             }
-            
+
             _logger.LogWarning("[EntityTrigger] Resource Group {rg} does not contain the valid tags to continue execution", rg.Data.Name);
             return false;
         }
@@ -87,9 +88,27 @@ public class AzureResourceEntity(ILogger<AzureResourceEntity> logger, IAzureReso
         {
             _logger.LogError(ex, "[EntityTrigger] Failed to apply approval tags to Id {subId} and name {name} due to an exception", State.SubscriptionId, State.ResourceGroupName);
             throw;
-        } 
+        }
     }
-    
+
+    private void SetSchedule()
+    {
+        var entityInstanceId = Context.Id;
+        var signalTime = DateTimeOffset.UtcNow.AddMinutes(3);
+        var signalOptions = new SignalEntityOptions
+        {
+            SignalTime = signalTime
+        };
+        Context.SignalEntity(entityInstanceId, nameof(DeleteResourceAsync), signalOptions);
+        State.Scheduled = true;
+    }
+
+    public async Task DeleteResourceAsync()
+    {
+        await azureResourceService.DeleteResourceGroupAsync(State.SubscriptionId, State.ResourceGroupName);
+        State.Scheduled = false;
+    }
+
     [Function(nameof(AzureResourceEntity))]
     public static Task RunEntityAsync([EntityTrigger] TaskEntityDispatcher dispatcher)
     {
