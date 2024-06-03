@@ -18,5 +18,14 @@ Azure Reaper uses specific tags to manage the lifecycle of Azure resource groups
 |AzReaperStatus|This tag is applied by Azure Reaper after successful validation and scheduling of the resource group’s deletion. It indicates that the resource group is approved for deletion.|Approved |Azure Reaper |Can be used to return comments or error messages from Azure Reaper|
 |AzReaperDeletionTime|Could be used to message back the exact time and date of the scheduled death.  | 2024-05-31T15:30:00Z  | Azure Reaper  | Not yet implmeneted!|
 
+## Limitations
+Azure Reaper currently has the following limitations:
+| Description  |  Status |
+|---|---|
+| It is not possible to stop the deletion of a scheduled resource group. 😅 However, a lock can be applied to prevent deletion.  | ✅ Workaround Available  |
+| Azure Reaper has only been tested with a single subscription. Multi-subscription support is planned.  | 🔨 Planned Improvement  |
+|Azure Reaper operates only at the Azure Resource Group level, not on individual resources| 🗒️ Current Functionality  |
+These limitations will be actively addressed in future updates to help make Azure Reaper work and play better.
+
 ## Status
 Azure Reaper is under active development and is constantly evolving. The capabilities and performance of the project are continually being improved. As development progresses, comprehensive documentation, getting started guides, and deployment instructions will be provided. Your patience and contributions are greatly appreciated. Stay tuned for update!
