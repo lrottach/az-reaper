@@ -4,7 +4,7 @@
         <AzureFunctionsVersion>V4</AzureFunctionsVersion>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Azure.Identity" Version="1.11.0" />
+        <PackageReference Include="Azure.Identity" Version="1.11.4" />
         <PackageReference Include="Azure.Messaging.EventGrid" Version="4.7.0" />
         <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
         <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.6.0" />
