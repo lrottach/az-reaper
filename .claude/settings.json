@@ -8,7 +8,6 @@
   "permissions": {
     "defaultMode": "default",
     "allow": [
-      "Read(**)",
       "Edit(src/**/*.cs)",
       "Edit(src/**/*.csproj)",
       "Edit(src/**/*.sln)",
