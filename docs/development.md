@@ -11,10 +11,18 @@
 ## Setup
 ### Azurite
 Azurite is a lightweight server clone of Azure Blob, Queue, and Table Storage that simulates most of the commands supported by it with minimal dependencies.
-I prefer running Azurite for local development using Docker. You can run Azurite using the following command:
+
+Start Azurite using Docker Compose (or Podman Compose):
 
 ```bash
-docker run -p 10000:10000 -p 10001:10001 -p 10002:10002 mcr.microsoft.com/azure-storage/azurite
+# Start in background
+docker compose up -d azurite
+
+# View logs
+docker compose logs -f azurite
+
+# Stop
+docker compose down
 ```
 
 ### Local Settings

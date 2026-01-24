@@ -12,7 +12,8 @@
   "extensions": {
     "durableTask": {
       "storageProvider": {
-        "type": "AzureStorage"
+        "type": "AzureStorage",
+        "connectionStringName": "AzureWebJobsStorage"
       }
     }
   }

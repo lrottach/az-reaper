@@ -31,7 +31,7 @@ func start
 
 1. Start Azurite for local storage emulation:
    ```bash
-   docker run -p 10000:10000 -p 10001:10001 -p 10002:10002 mcr.microsoft.com/azure-storage/azurite
+   docker compose up -d azurite
    ```
 
 2. Create `src/AzureReaper.Functions/local.settings.json`:
