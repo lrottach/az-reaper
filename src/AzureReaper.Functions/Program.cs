@@ -1,17 +1,18 @@
 using AzureReaper.Interfaces;
 using AzureReaper.Services;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-var host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults()
-    .ConfigureServices(services =>
-    {
-        services.AddApplicationInsightsTelemetryWorkerService();
-        services.ConfigureFunctionsApplicationInsights();
-        services.AddSingleton<IAzureResourceService, AzureResourceService>();
-    })
-    .Build();
+var builder = FunctionsApplication.CreateBuilder(args);
 
-host.Run();
+builder.ConfigureFunctionsWebApplication();
+
+builder.Services
+    .AddApplicationInsightsTelemetryWorkerService()
+    .ConfigureFunctionsApplicationInsights();
+
+builder.Services.AddSingleton<IAzureResourceService, AzureResourceService>();
+
+builder.Build().Run();

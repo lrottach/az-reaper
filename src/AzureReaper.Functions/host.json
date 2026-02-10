@@ -11,6 +11,10 @@
   },
   "extensions": {
     "durableTask": {
+      "tracing": {
+        "distributedTracingEnabled": true,
+        "version": "V2"
+      },
       "storageProvider": {
         "type": "AzureStorage",
         "connectionStringName": "AzureWebJobsStorage"
