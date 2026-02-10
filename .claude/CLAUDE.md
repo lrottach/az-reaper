@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Azure Reaper is an Azure Functions application that automatically deletes Azure Resource Groups marked with a `ReaperLifetime` tag after a specified duration. The project is currently being rewritten from .NET 6 to .NET 8 with the isolated worker model.
+Azure Reaper is an Azure Functions application that automatically deletes Azure Resource Groups marked with a `ReaperLifetime` tag after a specified duration. The project uses .NET 10 with the isolated worker model.
 
-- **Active code**: `src/` directory (NET 8.0, under development)
+- **Active code**: `src/` directory (NET 10.0)
 - **Stable archive**: `archive/` directory (NET 6.0, previous version)
 
 ## Build Commands
@@ -21,7 +21,7 @@ dotnet build
 dotnet clean -c Release && dotnet build -c Release
 
 # Publish for deployment
-dotnet publish -c Release -o bin/Release/net8.0/publish
+dotnet publish -c Release -o bin/Release/net10.0/publish
 
 # Run locally (requires Azurite running)
 func start
@@ -76,7 +76,8 @@ Infrastructure as Code is in `infra/main.bicep` (subscription-scoped deployment)
 
 ## Technology Stack
 
-- .NET 8.0 with Azure Functions v4 (isolated worker model)
-- Durable Functions for orchestration
+- .NET 10.0 with Azure Functions v4 (isolated worker model)
+- `FunctionsApplication.CreateBuilder` hosting pattern with ASP.NET Core integration
+- Durable Functions with Distributed Tracing V2 enabled
 - Azure SDK (Azure.ResourceManager, Azure.Identity)
 - EventGrid triggers
