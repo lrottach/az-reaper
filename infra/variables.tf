@@ -29,12 +29,8 @@ variable "resource_group_name" {
 
 variable "storage_account_name" {
   type        = string
-  description = "Name of the storage account (3-24 chars, lowercase alphanumeric only)"
-
-  validation {
-    condition     = can(regex("^[a-z0-9]{3,24}$", var.storage_account_name))
-    error_message = "Storage account name must be 3-24 characters, lowercase letters and numbers only."
-  }
+  description = "Name of the storage account"
+  default     = ""
 }
 
 variable "function_app_name" {

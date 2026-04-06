@@ -4,7 +4,7 @@
 
 locals {
   resource_group_name         = var.resource_group_name != "" ? var.resource_group_name : "rg-${var.AZURE_ENV_NAME}"
-  storage_account_name        = var.storage_account_name
+  storage_account_name        = var.storage_account_name != "" ? var.storage_account_name : "st${replace(lower(var.AZURE_ENV_NAME), "-", "")}"
   function_app_name           = var.function_app_name != "" ? var.function_app_name : "func-${var.AZURE_ENV_NAME}"
   app_service_plan_name       = var.app_service_plan_name != "" ? var.app_service_plan_name : "asp-${var.AZURE_ENV_NAME}"
   log_analytics_name          = var.log_analytics_name != "" ? var.log_analytics_name : "log-${var.AZURE_ENV_NAME}"
