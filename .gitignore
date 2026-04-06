@@ -357,3 +357,6 @@ MigrationBackup/
 
 # Local test payloads
 docs/payload.json
+
+# Local hooks
+.github/hooks/superset-notify.json
