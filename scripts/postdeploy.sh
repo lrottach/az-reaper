@@ -47,8 +47,8 @@ fi
 
 WEBHOOK_URL="https://${FUNCTION_APP_NAME}.azurewebsites.net/runtime/webhooks/EventGrid?functionName=EventGridTrigger&code=${SYSTEM_KEY}"
 
-echo "Creating EventGrid event subscription..."
-az eventgrid system-topic event-subscription create \
+echo "Creating or updating EventGrid event subscription..."
+az eventgrid system-topic event-subscription create-or-update \
   --name "$EVENT_SUBSCRIPTION_NAME" \
   --system-topic-name "$SYSTEM_TOPIC_NAME" \
   --resource-group "$RESOURCE_GROUP_NAME" \
@@ -58,4 +58,4 @@ az eventgrid system-topic event-subscription create \
   --subject-begins-with "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/" \
   --output none
 
-echo "EventGrid event subscription '${EVENT_SUBSCRIPTION_NAME}' created successfully."
+echo "EventGrid event subscription '${EVENT_SUBSCRIPTION_NAME}' configured successfully."

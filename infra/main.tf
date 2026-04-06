@@ -4,7 +4,7 @@
 
 locals {
   resource_group_name         = var.resource_group_name != "" ? var.resource_group_name : "rg-${var.AZURE_ENV_NAME}"
-  storage_account_name        = var.storage_account_name != "" ? var.storage_account_name : "st${replace(var.AZURE_ENV_NAME, "-", "")}${random_string.suffix.result}"
+  storage_account_name        = var.storage_account_name
   function_app_name           = var.function_app_name != "" ? var.function_app_name : "func-${var.AZURE_ENV_NAME}"
   app_service_plan_name       = var.app_service_plan_name != "" ? var.app_service_plan_name : "asp-${var.AZURE_ENV_NAME}"
   log_analytics_name          = var.log_analytics_name != "" ? var.log_analytics_name : "log-${var.AZURE_ENV_NAME}"
@@ -15,12 +15,6 @@ locals {
     "azd-env-name" = var.AZURE_ENV_NAME
     "project"      = "azure-reaper"
   }
-}
-
-resource "random_string" "suffix" {
-  length  = 6
-  special = false
-  upper   = false
 }
 
 resource "azurerm_resource_group" "main" {
