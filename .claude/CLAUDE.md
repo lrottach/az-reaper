@@ -26,8 +26,8 @@ This project is a complete rewrite of the original Azure Reaper (.NET 6, in-proc
 - `dotnet` (10.0+) — installed
 - `az` (Azure CLI) — installed
 - `gh` (GitHub CLI) — installed
-- `func` (Azure Functions Core Tools) — **not yet installed**, required for local function execution
-- `azd` (Azure Developer CLI) — **not yet installed**, required for deployment workflow
+- `func` (Azure Functions Core Tools 4.x) — installed
+- `azd` (Azure Developer CLI 1.x) — installed
 
 ## Build Commands
 
