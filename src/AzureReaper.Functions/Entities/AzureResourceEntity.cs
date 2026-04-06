@@ -45,7 +45,12 @@ public class AzureResourceEntity(
             return;
         }
 
-        await PrepareResourceGroup();
+        if (!await PrepareResourceGroup())
+        {
+            State = null!;
+            return;
+        }
+
         SetSchedule(lifetimeMinutes.Value);
     }
 
@@ -82,17 +87,19 @@ public class AzureResourceEntity(
         }
     }
 
-    private async Task PrepareResourceGroup()
+    private async Task<bool> PrepareResourceGroup()
     {
         try
         {
             await azureResourceService.ApplyResourceGroupTags(State.SubscriptionId!, State.ResourceGroupName!,
                 _statusTagName, "Confirmed");
             logger.LogInformation("[EntityTrigger] Applied '{tag}' = 'Confirmed' to Resource Group '{rg}'", _statusTagName, State.ResourceGroupName);
+            return true;
         }
         catch (RequestFailedException ex) when (ex.Status == 404)
         {
-            logger.LogWarning("[EntityTrigger] Resource Group '{rg}' was deleted before approval tag could be applied", State.ResourceGroupName);
+            logger.LogWarning("[EntityTrigger] Resource Group '{rg}' was deleted before approval tag could be applied. Removing entity.", State.ResourceGroupName);
+            return false;
         }
         catch (Exception ex)
         {
@@ -121,7 +128,7 @@ public class AzureResourceEntity(
         try
         {
             await azureResourceService.DeleteResourceGroupAsync(State.SubscriptionId!, State.ResourceGroupName!);
-            logger.LogInformation("[EntityTrigger] Successfully deleted Resource Group '{rg}'", State.ResourceGroupName);
+            logger.LogInformation("[EntityTrigger] Deletion started for Resource Group '{rg}'", State.ResourceGroupName);
         }
         catch (RequestFailedException ex) when (ex.Status == 404)
         {
