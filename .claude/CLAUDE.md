@@ -6,8 +6,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Azure Reaper is an Azure Functions application that automatically deletes Azure Resource Groups marked with a `ReaperLifetime` tag after a specified duration. The project uses .NET 10 with the isolated worker model.
 
-- **Active code**: `src/` directory (NET 10.0)
-- **Stable archive**: `archive/` directory (NET 6.0, previous version)
+- **Active code**: `src/` directory (.NET 10.0)
+- **Stable archive**: `archive/` directory (.NET 6.0, previous version — do not modify)
+
+## Rewrite Context
+
+This project is a complete rewrite of the original Azure Reaper (.NET 6, in-process model) to modern .NET 10 with the isolated worker model. The old version is preserved in `archive/` for reference.
+
+**Approach:** Step-by-step rewrite and test — each feature is built, verified, and tracked via GitHub issues before moving to the next.
+
+**Goals:**
+- Modern .NET 10 LTS with Azure Functions isolated worker model
+- Azure SDK (`Azure.ResourceManager`) instead of manual REST API calls
+- Azure Developer CLI (`azd`) for streamlined deployment
+- Comprehensive Bicep infrastructure
+- Improved documentation and a blog post about the rewrite
+
+**CLI Prerequisites:**
+- `dotnet` (10.0+) — installed
+- `az` (Azure CLI) — installed
+- `gh` (GitHub CLI) — installed
+- `func` (Azure Functions Core Tools) — **not yet installed**, required for local function execution
+- `azd` (Azure Developer CLI) — **not yet installed**, required for deployment workflow
 
 ## Build Commands
 
@@ -23,18 +43,24 @@ dotnet clean -c Release && dotnet build -c Release
 # Publish for deployment
 dotnet publish -c Release -o bin/Release/net10.0/publish
 
-# Run locally (requires Azurite running)
+# Run locally (requires Azurite running and func CLI installed)
 func start
 ```
 
 ## Local Development Setup
 
+Requires Docker or Podman for running Azurite (Azure Storage emulator). The project uses `docker-compose.yml` at the repo root.
+
 1. Start Azurite for local storage emulation:
    ```bash
+   # Docker
    docker compose up -d azurite
+
+   # Podman
+   podman compose up -d azurite
    ```
 
-2. Create `src/AzureReaper.Functions/local.settings.json`:
+2. Create `src/AzureReaper.Functions/local.settings.json` (see `local.settings.sample.json`):
    ```json
    {
      "IsEncrypted": false,
@@ -74,10 +100,26 @@ func start
 
 Infrastructure as Code is in `infra/main.bicep` (subscription-scoped deployment).
 
+## Development Guidelines
+
+This project follows Azure Functions best practices based on official Microsoft documentation. When writing or modifying code, use the Microsoft Learn MCP tools to look up current guidance before implementing patterns for:
+
+- Azure Functions hosting, triggers, and bindings
+- Durable Functions entities and orchestrations
+- Azure SDK usage (`Azure.ResourceManager`, `Azure.Identity`)
+- Bicep templates and Azure Developer CLI (`azd`)
+
+Always prefer the **isolated worker model** patterns over the legacy in-process model. Do not use deprecated APIs or packages.
+
+**Commit messages** use conventional prefixes: `feat:`, `refactor:`, `fix:`, `docs:`.
+
+**Pull request titles** use the format: `feature: <description>`.
+
 ## Technology Stack
 
-- .NET 10.0 with Azure Functions v4 (isolated worker model)
+- .NET 10.0 LTS with Azure Functions v4 (isolated worker model)
 - `FunctionsApplication.CreateBuilder` hosting pattern with ASP.NET Core integration
 - Durable Functions with Distributed Tracing V2 enabled
 - Azure SDK (Azure.ResourceManager, Azure.Identity)
 - EventGrid triggers
+- Planned: Azure Developer CLI (`azd`) for deployment, GitHub Actions for CI/CD
