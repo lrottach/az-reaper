@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Azure Reaper is an Azure Functions application that automatically deletes Azure Resource Groups marked with a `ReaperLifetime` tag after a specified duration. The project uses .NET 10 with the isolated worker model.
+Azure Reaper is an Azure Functions application that automatically deletes Azure Resource Groups marked with a `CloudReaperLifetime` tag after a specified duration. The project uses .NET 10 with the isolated worker model.
 
 - **Active code**: `src/` directory (.NET 10.0)
 - **Stable archive**: `archive/` directory (.NET 6.0, previous version — do not modify)
@@ -89,12 +89,12 @@ Requires Docker or Podman for running Azurite (Azure Storage emulator). The proj
 - `EventGridTrigger.cs` - Entry point, parses EventGrid events
 - `Entities/AzureResourceEntity.cs` - Durable entity for state management and orchestration
 - `Services/AzureResourceService.cs` - Azure Resource Manager SDK wrapper
-- `Common/TagHandler.cs` - Validates `ReaperLifetime` tag format
+- `Common/TagHandler.cs` - Validates `CloudReaperLifetime` tag format
 - `Common/StringHandler.cs` - Parses Azure resource IDs from event subjects
 
-**Tag System:**
-- `ReaperLifetime` - Required tag on resource groups, value is minutes until deletion
-- `ReaperStatus` - Applied by the system as "Approved" when deletion is scheduled
+**Tag System (configurable via `LifetimeTagName` / `StatusTagName` environment variables):**
+- `CloudReaperLifetime` - Required tag on resource groups, value is minutes until deletion
+- `CloudReaperStatus` - Applied by the system as "Confirmed" when deletion is scheduled
 
 ## Infrastructure
 

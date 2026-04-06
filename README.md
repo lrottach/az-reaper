@@ -17,13 +17,13 @@ The idea is based on Jeff Holan's great [﻿functions-csharp-entities-grimreaper
 ![Azure Reaper - High Level](/.eraser/l4XQEUndY4eCyx0QUlsY___In9Uw2nCBah8b789trG5jB2NNPv1___---figure---qetgun-3A-w2o2ntuvxo4---figure---pievCzn1kLeqIGOqKsGwqw.png "Azure Reaper - High Level")
 
 ## Tags
-Azure Reaper uses specific tags to manage the lifecycle of Azure resource groups. Below are the tags involved and their use cases:
+Azure Reaper uses specific tags to manage the lifecycle of Azure resource groups. Tag names are configurable via environment variables (`LifetimeTagName`, `StatusTagName`). Below are the default tags and their use cases:
 
 | Tag Name | Description | Example Value | Responsibility | Comments |
 | ----- | ----- | ----- | ----- | ----- |
-| AzReaperLifetime | This tag is applied when the resource group is created by the engineer. It specifies the lifespan of the resource group in minutes before it should be deleted. | 60 (for 60 minutes lifetime | User |  |
-| AzReaperStatus | This tag is applied by Azure Reaper after successful validation and scheduling of the resource group’s deletion. It indicates that the resource group is approved for deletion. | Approved | Azure Reaper | Can be used to return comments or error messages from Azure Reaper |
-| AzReaperDeletionTime | Could be used to message back the exact time and date of the scheduled death. | 2024-05-31T15:30:00Z | Azure Reaper | Not yet implmeneted! |
+| CloudReaperLifetime | This tag is applied when the resource group is created by the engineer. It specifies the lifespan of the resource group in minutes before it should be deleted. The value must be a positive integer (> 0). Values of 0, negative numbers, or non-integer strings are ignored. Configurable via `LifetimeTagName`. | 60 (for 60 minutes lifetime) | User |  |
+| CloudReaperStatus | This tag is applied by Azure Reaper after successful validation and scheduling of the resource group’s deletion. It indicates that the resource group is confirmed for deletion. Configurable via `StatusTagName`. | Confirmed | Azure Reaper | Can be used to return comments or error messages from Azure Reaper |
+| CloudReaperDeletionTime | Could be used to message back the exact time and date of the scheduled death. | 2024-05-31T15:30:00Z | Azure Reaper | Not yet implmeneted! |
 ## Limitations
 Azure Reaper currently has the following limitations:
 

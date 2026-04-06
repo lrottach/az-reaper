@@ -354,3 +354,9 @@ MigrationBackup/
 
 # VS Code
 .vscode/
+
+# Local test payloads
+docs/payload.json
+
+# Local hooks
+.github/hooks/superset-notify.json
