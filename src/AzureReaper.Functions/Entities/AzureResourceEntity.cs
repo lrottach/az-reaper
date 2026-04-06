@@ -15,8 +15,8 @@ public class AzureResourceEntity(
     IAzureResourceService azureResourceService,
     IConfiguration configuration) : TaskEntity<AzureResourceState>
 {
-    private readonly string _lifetimeTagName = configuration.GetValue<string>("LifetimeTagName") ?? "AzureReaperLifetime";
-    private readonly string _statusTagName = configuration.GetValue<string>("StatusTagName") ?? "AzureReaperStatus";
+    private readonly string _lifetimeTagName = configuration.GetValue<string>("LifetimeTagName") ?? "CloudReaperLifetime";
+    private readonly string _statusTagName = configuration.GetValue<string>("StatusTagName") ?? "CloudReaperStatus";
 
     public async Task InitializeEntityAsync(ResourcePayload resourcePayload)
     {
