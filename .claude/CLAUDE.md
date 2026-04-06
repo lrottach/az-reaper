@@ -111,6 +111,8 @@ This project follows Azure Functions best practices based on official Microsoft 
 
 Always prefer the **isolated worker model** patterns over the legacy in-process model. Do not use deprecated APIs or packages.
 
+**Branching & merges:** The `main` branch is protected. All work must happen on feature branches pushed to GitHub. Merging into `main` is only possible through a pull request.
+
 **Commit messages** use conventional prefixes: `feat:`, `refactor:`, `fix:`, `docs:`.
 
 **Pull request titles** use the format: `feature: <description>`.
