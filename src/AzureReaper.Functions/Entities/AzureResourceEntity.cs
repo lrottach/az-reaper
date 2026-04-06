@@ -51,24 +51,22 @@ public class AzureResourceEntity(
 
     private async Task<int?> ValidateResourceGroupEligibility()
     {
-        try
+        var rg = await azureResourceService.GetAzureResourceGroup(State.SubscriptionId, State.ResourceGroupName);
+
+        if (rg is null)
         {
-            var rg = await azureResourceService.GetAzureResourceGroup(State.SubscriptionId, State.ResourceGroupName);
-
-            if (TagHandler.TryGetLifetimeMinutes(rg.Data.Tags, _lifetimeTagName, out var lifetimeMinutes))
-            {
-                logger.LogInformation("[EntityTrigger] Resource Group '{rg}' has valid lifetime tag: {minutes} minutes", rg.Data.Name, lifetimeMinutes);
-                return lifetimeMinutes;
-            }
-
-            logger.LogWarning("[EntityTrigger] Resource Group '{rg}' does not have a valid '{tag}' tag", rg.Data.Name, _lifetimeTagName);
+            logger.LogWarning("[EntityTrigger] Resource Group '{rg}' not found in subscription '{sub}'", State.ResourceGroupName, State.SubscriptionId);
             return null;
         }
-        catch (Exception ex)
+
+        if (TagHandler.TryGetLifetimeMinutes(rg.Data.Tags, _lifetimeTagName, out var lifetimeMinutes))
         {
-            logger.LogError(ex, "[EntityTrigger] Failed to validate Resource Group '{rg}' in subscription '{sub}'", State.ResourceGroupName, State.SubscriptionId);
-            return null;
+            logger.LogInformation("[EntityTrigger] Resource Group '{rg}' has valid lifetime tag: {minutes} minutes", rg.Data.Name, lifetimeMinutes);
+            return lifetimeMinutes;
         }
+
+        logger.LogWarning("[EntityTrigger] Resource Group '{rg}' does not have a valid '{tag}' tag", rg.Data.Name, _lifetimeTagName);
+        return null;
     }
 
     private async Task PrepareResourceGroup()
