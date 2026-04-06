@@ -1,6 +1,7 @@
 name: az-reaper
 infra:
   provider: terraform
+  path: ./infra
 services:
   functions:
     project: ./src/AzureReaper.Functions

@@ -69,10 +69,10 @@ resource "azurerm_linux_function_app" "reaper" {
   }
 
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"            = "dotnet-isolated"
+    "FUNCTIONS_WORKER_RUNTIME"              = "dotnet-isolated"
     "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.reaper.connection_string
-    "LifetimeTagName"                     = var.lifetime_tag_name
-    "StatusTagName"                       = var.status_tag_name
+    "LifetimeTagName"                       = var.lifetime_tag_name
+    "StatusTagName"                         = var.status_tag_name
   }
 
   tags = merge(local.default_tags, {

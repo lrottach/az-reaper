@@ -23,43 +23,54 @@ variable "AZURE_SUBSCRIPTION_ID" {
 
 variable "resource_group_name" {
   type        = string
-  description = "Name of the resource group"
+  description = "Optional override for the resource group name"
   default     = ""
 }
 
 variable "storage_account_name" {
   type        = string
-  description = "Name of the storage account"
+  description = "Optional override for the storage account name"
   default     = ""
+
+  validation {
+    condition     = var.storage_account_name == "" || can(regex("^[a-z0-9]{3,24}$", var.storage_account_name))
+    error_message = "Storage account names must be 3-24 characters and use lowercase letters and numbers only."
+  }
 }
 
 variable "function_app_name" {
   type        = string
-  description = "Name of the function app"
+  description = "Optional override for the function app name"
   default     = ""
 }
 
 variable "app_service_plan_name" {
   type        = string
-  description = "Name of the app service plan"
+  description = "Optional override for the app service plan name"
   default     = ""
 }
 
 variable "log_analytics_name" {
   type        = string
-  description = "Name of the Log Analytics workspace"
+  description = "Optional override for the Log Analytics workspace name"
   default     = ""
 }
 
 variable "app_insights_name" {
   type        = string
-  description = "Name of the Application Insights instance"
+  description = "Optional override for the Application Insights instance name"
   default     = ""
 }
 
 variable "eventgrid_system_topic_name" {
   type        = string
-  description = "Name of the EventGrid system topic"
+  description = "Optional override for the EventGrid system topic name"
+  default     = ""
+}
+
+variable "eventgrid_event_subscription_name" {
+  type        = string
+  description = "Optional override for the EventGrid event subscription name"
   default     = ""
 }
 

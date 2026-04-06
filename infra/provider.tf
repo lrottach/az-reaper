@@ -7,12 +7,12 @@ terraform {
       version = "~> 4.0"
     }
 
-}
+  }
 }
 
 provider "azurerm" {
   features {}
 
-  subscription_id             = var.AZURE_SUBSCRIPTION_ID
+  subscription_id                 = var.AZURE_SUBSCRIPTION_ID
   resource_provider_registrations = "none"
 }
