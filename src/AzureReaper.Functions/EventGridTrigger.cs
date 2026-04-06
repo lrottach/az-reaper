@@ -28,22 +28,23 @@ public class EventGridTrigger(ILogger<EventGridTrigger> logger)
             return;
         }
 
-        // Parse the event subject using Azure SDK's ResourceIdentifier for validation and data extraction
-        // Recommended: also configure subject filtering on the EventGrid subscription for efficiency
-        var resourceId = new ResourceIdentifier(eventGridEvent.Subject);
-
-        // Filter to resource-group-level events only (not child resources like storage accounts, VMs, etc.)
-        // Resource group subjects have the format: /subscriptions/{subId}/resourceGroups/{rgName}
-        if (resourceId.ResourceType != ResourceGroupResource.ResourceType)
-        {
-            logger.LogDebug("[EventGridTrigger] Skipping non-resource-group event: {Subject}", eventGridEvent.Subject);
-            return;
-        }
-
         try
         {
-            // Build entity ID from subscription and resource group name
-            string entityKey = $"{resourceId.SubscriptionId}_{resourceId.Name}";
+            // Parse the event subject using Azure SDK's ResourceIdentifier for validation and data extraction
+            // Recommended: also configure subject filtering on the EventGrid subscription for efficiency
+            var resourceId = new ResourceIdentifier(eventGridEvent.Subject);
+
+            // Filter to resource-group-level events only (not child resources like storage accounts, VMs, etc.)
+            // Resource group subjects have the format: /subscriptions/{subId}/resourceGroups/{rgName}
+            if (resourceId.ResourceType != ResourceGroupResource.ResourceType)
+            {
+                logger.LogDebug("[EventGridTrigger] Skipping non-resource-group event: {Subject}", eventGridEvent.Subject);
+                return;
+            }
+
+            // Build entity ID from normalized subscription and resource group name
+            // Azure resource IDs are case-insensitive, so normalize to prevent duplicate entities
+            string entityKey = $"{resourceId.SubscriptionId!.ToLowerInvariant()}_{resourceId.Name!.ToLowerInvariant()}";
             var entityId = new EntityInstanceId(nameof(AzureResourceEntity), entityKey);
 
             // Build resource payload from parsed resource identifier
