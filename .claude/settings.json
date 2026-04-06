@@ -1,12 +1,11 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "cleanupPeriodDays": 14,
   "attribution": {
     "commit": "",
     "pr": ""
   },
-  "cleanupPeriodDays": 14,
   "permissions": {
-    "defaultMode": "default",
     "allow": [
       "Edit(src/**/*.cs)",
       "Edit(src/**/*.csproj)",
@@ -58,6 +57,11 @@
       "Bash(sudo:*)",
       "Bash(curl:*)",
       "Bash(wget:*)"
-    ]
+    ],
+    "defaultMode": "default"
+  },
+  "enabledPlugins": {
+    "github@claude-plugins-official": true,
+    "csharp-lsp@claude-plugins-official": true
   }
 }

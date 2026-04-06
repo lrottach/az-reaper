@@ -351,3 +351,6 @@ MigrationBackup/
 
 # Mono folder
 .mono/
+
+# VS Code
+.vscode/

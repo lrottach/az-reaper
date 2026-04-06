@@ -9,20 +9,22 @@
 	},
 	"features": {
 		"ghcr.io/devcontainers/features/azure-cli:1": {},
-		"ghcr.io/devcontainers/features/dotnet:2": {},
-		"ghcr.io/devcontainers/features/powershell:1": {},
+		"ghcr.io/devcontainers/features/dotnet:2": {
+			"version": "10.0"
+		},
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
-		"ghcr.io/devcontainers/features/sshd:1": {
-			"version": "latest"
-		}
+		"ghcr.io/devcontainers/features/github-cli:1": {}
 	},
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [
-		3000,
-		3001
+		7071,
+		10000,
+		10001,
+		10002
 	],
+	"postCreateCommand": "dotnet restore src/AzureReaper.Functions/AzureReaper.csproj",
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "uname -a",
 	// Configure tool-specific properties.
@@ -30,7 +32,6 @@
 		"vscode": {
 			"extensions": [
 				"ms-vscode.azurecli",
-				"ms-vscode.powershell",
 				"ms-dotnettools.csharp",
 				"ms-dotnettools.vscode-dotnet-runtime",
 				"ms-azuretools.vscode-bicep",
