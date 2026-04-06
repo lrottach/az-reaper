@@ -58,8 +58,14 @@ public class EventGridTrigger(ILogger<EventGridTrigger> logger)
             // Signal entity to initialize
             await client.Entities.SignalEntityAsync(entityId, nameof(AzureResourceEntity.InitializeEntityAsync), resourcePayload);
         }
+        catch (FormatException ex)
+        {
+            // Malformed subject -- log and discard to avoid infinite EventGrid delivery retries
+            logger.LogWarning(ex, "[EventGridTrigger] Malformed event subject, discarding: {Subject}", eventGridEvent.Subject);
+        }
         catch (Exception ex)
         {
+            // Transient failures (e.g. Durable Task storage) should rethrow for EventGrid retry
             logger.LogError(ex, "[EventGridTrigger] Failed to process event: {Subject}", eventGridEvent.Subject);
             throw;
         }
