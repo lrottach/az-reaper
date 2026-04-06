@@ -74,7 +74,7 @@ public class AzureResourceEntity(
         try
         {
             await azureResourceService.ApplyResourceGroupTags(State.SubscriptionId, State.ResourceGroupName,
-                _statusTagName, "confirmed");
+                _statusTagName, "Confirmed");
             logger.LogInformation("[EntityTrigger] Applied '{tag}' = 'confirmed' to Resource Group '{rg}'", _statusTagName, State.ResourceGroupName);
         }
         catch (Exception ex)

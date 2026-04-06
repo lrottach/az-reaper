@@ -22,7 +22,7 @@ Azure Reaper uses specific tags to manage the lifecycle of Azure resource groups
 | Tag Name | Description | Example Value | Responsibility | Comments |
 | ----- | ----- | ----- | ----- | ----- |
 | CloudReaperLifetime | This tag is applied when the resource group is created by the engineer. It specifies the lifespan of the resource group in minutes before it should be deleted. | 60 (for 60 minutes lifetime) | User |  |
-| CloudReaperStatus | This tag is applied by Azure Reaper after successful validation and scheduling of the resource group’s deletion. It indicates that the resource group is confirmed for deletion. | confirmed | Azure Reaper | Can be used to return comments or error messages from Azure Reaper |
+| CloudReaperStatus | This tag is applied by Azure Reaper after successful validation and scheduling of the resource group’s deletion. It indicates that the resource group is confirmed for deletion. | Confirmed | Azure Reaper | Can be used to return comments or error messages from Azure Reaper |
 | AzReaperDeletionTime | Could be used to message back the exact time and date of the scheduled death. | 2024-05-31T15:30:00Z | Azure Reaper | Not yet implmeneted! |
 ## Limitations
 Azure Reaper currently has the following limitations:
