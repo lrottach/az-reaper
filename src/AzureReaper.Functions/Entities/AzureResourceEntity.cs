@@ -51,31 +51,48 @@ public class AzureResourceEntity(
 
     private async Task<int?> ValidateResourceGroupEligibility()
     {
-        var rg = await azureResourceService.GetAzureResourceGroup(State.SubscriptionId, State.ResourceGroupName);
-
-        if (rg is null)
+        try
         {
-            logger.LogWarning("[EntityTrigger] Resource Group '{rg}' not found in subscription '{sub}'", State.ResourceGroupName, State.SubscriptionId);
+            var rg = await azureResourceService.GetAzureResourceGroup(State.SubscriptionId!, State.ResourceGroupName!);
+
+            if (rg is null)
+            {
+                logger.LogWarning("[EntityTrigger] Resource Group '{rg}' not found in subscription '{sub}'", State.ResourceGroupName, State.SubscriptionId);
+                return null;
+            }
+
+            if (TagHandler.TryGetLifetimeMinutes(rg.Data.Tags, _lifetimeTagName, out var lifetimeMinutes))
+            {
+                logger.LogInformation("[EntityTrigger] Resource Group '{rg}' has valid lifetime tag: {minutes} minutes", rg.Data.Name, lifetimeMinutes);
+                return lifetimeMinutes;
+            }
+
+            logger.LogWarning("[EntityTrigger] Resource Group '{rg}' does not have a valid '{tag}' tag", rg.Data.Name, _lifetimeTagName);
             return null;
         }
-
-        if (TagHandler.TryGetLifetimeMinutes(rg.Data.Tags, _lifetimeTagName, out var lifetimeMinutes))
+        catch (RequestFailedException ex)
         {
-            logger.LogInformation("[EntityTrigger] Resource Group '{rg}' has valid lifetime tag: {minutes} minutes", rg.Data.Name, lifetimeMinutes);
-            return lifetimeMinutes;
+            logger.LogError(ex, "[EntityTrigger] Failed to validate Resource Group '{rg}' in subscription '{sub}'", State.ResourceGroupName, State.SubscriptionId);
+            throw;
         }
-
-        logger.LogWarning("[EntityTrigger] Resource Group '{rg}' does not have a valid '{tag}' tag", rg.Data.Name, _lifetimeTagName);
-        return null;
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "[EntityTrigger] Unexpected error validating Resource Group '{rg}' in subscription '{sub}'", State.ResourceGroupName, State.SubscriptionId);
+            throw;
+        }
     }
 
     private async Task PrepareResourceGroup()
     {
         try
         {
-            await azureResourceService.ApplyResourceGroupTags(State.SubscriptionId, State.ResourceGroupName,
+            await azureResourceService.ApplyResourceGroupTags(State.SubscriptionId!, State.ResourceGroupName!,
                 _statusTagName, "Confirmed");
-            logger.LogInformation("[EntityTrigger] Applied '{tag}' = 'confirmed' to Resource Group '{rg}'", _statusTagName, State.ResourceGroupName);
+            logger.LogInformation("[EntityTrigger] Applied '{tag}' = 'Confirmed' to Resource Group '{rg}'", _statusTagName, State.ResourceGroupName);
+        }
+        catch (RequestFailedException ex) when (ex.Status == 404)
+        {
+            logger.LogWarning("[EntityTrigger] Resource Group '{rg}' was deleted before approval tag could be applied", State.ResourceGroupName);
         }
         catch (Exception ex)
         {
@@ -103,7 +120,7 @@ public class AzureResourceEntity(
     {
         try
         {
-            await azureResourceService.DeleteResourceGroupAsync(State.SubscriptionId, State.ResourceGroupName);
+            await azureResourceService.DeleteResourceGroupAsync(State.SubscriptionId!, State.ResourceGroupName!);
             logger.LogInformation("[EntityTrigger] Successfully deleted Resource Group '{rg}'", State.ResourceGroupName);
         }
         catch (RequestFailedException ex) when (ex.Status == 404)

@@ -8,8 +8,8 @@ namespace AzureReaper.Services;
 
 public class AzureResourceService(ArmClient armClient, ILogger<AzureResourceService> logger) : IAzureResourceService
 {
-    public async Task<ResourceGroupResource?> GetAzureResourceGroup(string? subscriptionId,
-        string? resourceGroupName)
+    public async Task<ResourceGroupResource?> GetAzureResourceGroup(string subscriptionId,
+        string resourceGroupName)
     {
         var resourceGroupIdentifier = ResourceGroupResource.CreateResourceIdentifier(subscriptionId, resourceGroupName);
         var resourceGroupResource = armClient.GetResourceGroupResource(resourceGroupIdentifier);
@@ -27,7 +27,7 @@ public class AzureResourceService(ArmClient armClient, ILogger<AzureResourceServ
         }
     }
 
-    public async Task ApplyResourceGroupTags(string? subscriptionId, string? resourceGroupName, string? tagName, string? tagValue)
+    public async Task ApplyResourceGroupTags(string subscriptionId, string resourceGroupName, string tagName, string tagValue)
     {
         var resourceGroupIdentifier = ResourceGroupResource.CreateResourceIdentifier(subscriptionId, resourceGroupName);
         var rg = armClient.GetResourceGroupResource(resourceGroupIdentifier);
@@ -35,11 +35,11 @@ public class AzureResourceService(ArmClient armClient, ILogger<AzureResourceServ
         logger.LogInformation("[AzureResourceService] Tags applied to Resource Group '{resourceGroup}'", resourceGroupName);
     }
 
-    public async Task DeleteResourceGroupAsync(string? subscriptionId, string? resourceGroupName)
+    public async Task DeleteResourceGroupAsync(string subscriptionId, string resourceGroupName)
     {
         var resourceGroupIdentifier = ResourceGroupResource.CreateResourceIdentifier(subscriptionId, resourceGroupName);
         var rg = armClient.GetResourceGroupResource(resourceGroupIdentifier);
         await rg.DeleteAsync(WaitUntil.Started);
-        logger.LogInformation("[AzureResourceService] Resource Group '{resourceGroup}' deleted", resourceGroupName);
+        logger.LogInformation("[AzureResourceService] Resource Group '{resourceGroup}' deletion started", resourceGroupName);
     }
 }
