@@ -360,3 +360,12 @@ docs/payload.json
 
 # Local hooks
 .github/hooks/superset-notify.json
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+
+# Azure Developer CLI
+.azure/
