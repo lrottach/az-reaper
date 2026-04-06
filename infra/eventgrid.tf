@@ -10,7 +10,7 @@ resource "azurerm_eventgrid_system_topic" "reaper" {
   name                   = local.eventgrid_system_topic_name
   resource_group_name    = azurerm_resource_group.main.name
   location               = "global"
-  source_arm_resource_id = "/subscriptions/${var.AZURE_SUBSCRIPTION_ID}"
+  source_resource_id     = "/subscriptions/${var.AZURE_SUBSCRIPTION_ID}"
   topic_type             = "Microsoft.Resources.Subscriptions"
 
   tags = local.default_tags
