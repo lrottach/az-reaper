@@ -1,8 +1,9 @@
 // Default URL for triggering event grid function in the local environment.
 // http://localhost:7071/runtime/webhooks/EventGrid?functionName={functionname}
 
+using Azure.Core;
 using Azure.Messaging.EventGrid;
-using AzureReaper.Common;
+using Azure.ResourceManager.Resources;
 using AzureReaper.Entities;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
@@ -18,23 +19,55 @@ public class EventGridTrigger(ILogger<EventGridTrigger> logger)
     public async Task Run([EventGridTrigger] EventGridEvent eventGridEvent,
         [DurableClient] DurableTaskClient client)
     {
-        logger.LogInformation("[EventGridTrigger] Event type: {type}, Event subject: {subject}", eventGridEvent.EventType, eventGridEvent.Subject);
+        logger.LogInformation("[EventGridTrigger] Event type: {EventType}, Event subject: {Subject}", eventGridEvent.EventType, eventGridEvent.Subject);
 
-        // Make sure function will only continue for the correct event types
-        // Additional validation in case, EventGrid filter wasn't configured correctly
+        // Additional validation in case EventGrid subscription filters aren't configured correctly
         if (eventGridEvent.EventType != "Microsoft.Resources.ResourceWriteSuccess")
         {
-            logger.LogInformation("[EventGridTrigger] You shall not pass: {EventType}", eventGridEvent.EventType);
+            logger.LogInformation("[EventGridTrigger] Skipping unsupported event type: {EventType}", eventGridEvent.EventType);
             return;
         }
 
-        // Create new entity for current event
-        EntityInstanceId entityId = new EntityInstanceId(nameof(AzureResourceEntity), eventGridEvent.Subject.Replace("/", ""));
-            
-        // Build resource payload from event subject
-        ResourcePayload resourcePayload = StringHandler.ExtractResourcePayload(eventGridEvent.Subject);
-            
-        // Signal entity to initialize
-        await client.Entities.SignalEntityAsync(entityId, "InitializeEntityAsync", resourcePayload);
+        try
+        {
+            // Parse the event subject using Azure SDK's ResourceIdentifier for validation and data extraction
+            // Recommended: also configure subject filtering on the EventGrid subscription for efficiency
+            var resourceId = new ResourceIdentifier(eventGridEvent.Subject);
+
+            // Filter to resource-group-level events only (not child resources like storage accounts, VMs, etc.)
+            // Resource group subjects have the format: /subscriptions/{subId}/resourceGroups/{rgName}
+            if (resourceId.ResourceType != ResourceGroupResource.ResourceType)
+            {
+                logger.LogDebug("[EventGridTrigger] Skipping non-resource-group event: {Subject}", eventGridEvent.Subject);
+                return;
+            }
+
+            // Build entity ID from normalized subscription and resource group name
+            // Azure resource IDs are case-insensitive, so normalize to prevent duplicate entities
+            string entityKey = $"{resourceId.SubscriptionId!.ToLowerInvariant()}_{resourceId.Name!.ToLowerInvariant()}";
+            var entityId = new EntityInstanceId(nameof(AzureResourceEntity), entityKey);
+
+            // Build resource payload from parsed resource identifier
+            var resourcePayload = new ResourcePayload
+            {
+                SubscriptionId = resourceId.SubscriptionId,
+                ResourceId = eventGridEvent.Subject,
+                ResourceGroupName = resourceId.Name
+            };
+
+            // Signal entity to initialize
+            await client.Entities.SignalEntityAsync(entityId, nameof(AzureResourceEntity.InitializeEntityAsync), resourcePayload);
+        }
+        catch (FormatException ex)
+        {
+            // Malformed subject -- log and discard to avoid infinite EventGrid delivery retries
+            logger.LogWarning(ex, "[EventGridTrigger] Malformed event subject, discarding: {Subject}", eventGridEvent.Subject);
+        }
+        catch (Exception ex)
+        {
+            // Transient failures (e.g. Durable Task storage) should rethrow for EventGrid retry
+            logger.LogError(ex, "[EventGridTrigger] Failed to process event: {Subject}", eventGridEvent.Subject);
+            throw;
+        }
     }
 }
