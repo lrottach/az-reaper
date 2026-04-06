@@ -2,18 +2,18 @@ namespace AzureReaper.Common;
 
 public static class TagHandler
 {
-    public static bool CheckReaperTags(IDictionary<string, string> tags, string reaperTag)
+    public static bool TryGetLifetimeMinutes(IDictionary<string, string> tags, string tagName, out int lifetimeMinutes)
     {
-        // Check if current tags contain the required AzureReaper tag
         ArgumentNullException.ThrowIfNull(tags);
 
-        // Return true if the required AzureReaper tag exists and it's value can be parsed into a valid int
-        return tags.TryGetValue(reaperTag, out var tag) && CheckReaperTagValue(tag);
-    }
+        if (tags.TryGetValue(tagName, out var tagValue)
+            && int.TryParse(tagValue, out lifetimeMinutes)
+            && lifetimeMinutes > 0)
+        {
+            return true;
+        }
 
-    private static bool CheckReaperTagValue(string tagValue)
-    {
-        // Check if tagValue can be parsed into a valid int
-        return int.TryParse(tagValue, out _);
+        lifetimeMinutes = 0;
+        return false;
     }
 }

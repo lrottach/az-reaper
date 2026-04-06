@@ -7,13 +7,16 @@ public class AzureResourceState : IResourcePayload
 {
     [JsonPropertyName("subscriptionId")]
     public string? SubscriptionId { get; set; }
-    
+
     [JsonPropertyName("resourceId")]
     public string? ResourceId { get; set; }
-    
+
     [JsonPropertyName("resourceGroupName")]
     public string? ResourceGroupName { get; set; }
-    
+
     [JsonPropertyName("scheduled")]
     public bool Scheduled { get; set; }
+
+    [JsonPropertyName("deletionScheduledAt")]
+    public DateTimeOffset? DeletionScheduledAt { get; set; }
 }
