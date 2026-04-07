@@ -48,14 +48,31 @@ fi
 WEBHOOK_URL="https://${FUNCTION_APP_NAME}.azurewebsites.net/runtime/webhooks/EventGrid?functionName=EventGridTrigger&code=${SYSTEM_KEY}"
 
 echo "Creating or updating EventGrid event subscription..."
-az eventgrid system-topic event-subscription create-or-update \
+if az eventgrid system-topic event-subscription show \
   --name "$EVENT_SUBSCRIPTION_NAME" \
   --system-topic-name "$SYSTEM_TOPIC_NAME" \
   --resource-group "$RESOURCE_GROUP_NAME" \
-  --endpoint-type webhook \
-  --endpoint "$WEBHOOK_URL" \
-  --included-event-types "Microsoft.Resources.ResourceWriteSuccess" \
-  --subject-begins-with "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/" \
-  --output none
+  --output none 2>/dev/null; then
+
+  az eventgrid system-topic event-subscription update \
+    --name "$EVENT_SUBSCRIPTION_NAME" \
+    --system-topic-name "$SYSTEM_TOPIC_NAME" \
+    --resource-group "$RESOURCE_GROUP_NAME" \
+    --endpoint-type webhook \
+    --endpoint "$WEBHOOK_URL" \
+    --included-event-types "Microsoft.Resources.ResourceWriteSuccess" \
+    --subject-begins-with "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/" \
+    --output none
+else
+  az eventgrid system-topic event-subscription create \
+    --name "$EVENT_SUBSCRIPTION_NAME" \
+    --system-topic-name "$SYSTEM_TOPIC_NAME" \
+    --resource-group "$RESOURCE_GROUP_NAME" \
+    --endpoint-type webhook \
+    --endpoint "$WEBHOOK_URL" \
+    --included-event-types "Microsoft.Resources.ResourceWriteSuccess" \
+    --subject-begins-with "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/" \
+    --output none
+fi
 
 echo "EventGrid event subscription '${EVENT_SUBSCRIPTION_NAME}' configured successfully."

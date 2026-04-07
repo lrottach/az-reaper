@@ -7,11 +7,11 @@ output "AZURE_RESOURCE_GROUP_NAME" {
 }
 
 output "AZURE_FUNCTION_APP_NAME" {
-  value = azurerm_linux_function_app.reaper.name
+  value = azurerm_function_app_flex_consumption.reaper.name
 }
 
 output "AZURE_FUNCTION_URI" {
-  value = "https://${azurerm_linux_function_app.reaper.default_hostname}"
+  value = "https://${azurerm_function_app_flex_consumption.reaper.default_hostname}"
 }
 
 output "AZURE_EVENTGRID_SYSTEM_TOPIC_NAME" {

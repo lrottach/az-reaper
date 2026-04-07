@@ -39,6 +39,20 @@ Azure Reaper is under active development and is constantly evolving. The capabil
 # Deployment guide
 Azure Reaper is deployed with Azure Developer CLI (`azd`) and Terraform.
 
+## Prerequisites
+
+### Required permissions
+The user running the deployment needs the following permissions on the target Azure subscription:
+
+| Permission | Reason |
+| ----- | ----- |
+| **Owner** (or Contributor + User Access Administrator) | The deployment creates a role assignment for the Function App's managed identity, which requires `Microsoft.Authorization/roleAssignments/write`. |
+| Resource provider registration | The `Microsoft.EventGrid` resource provider must be registered on the subscription (see tip below). |
+
+During provisioning, the Function App's system-assigned managed identity is granted **Contributor** on the subscription so it can read, tag, and delete resource groups at runtime.
+
+### Required tooling
+
 1. Install the required tooling: `az`, `azd`, `dotnet` 10, and Azure Functions Core Tools 4.x.
 2. Sign in to Azure:
    ```bash
@@ -54,6 +68,14 @@ Azure Reaper is deployed with Azure Developer CLI (`azd`) and Terraform.
    ```bash
    azd up
    ```
+
+> [!TIP]
+> If provisioning fails with a `MissingSubscriptionRegistration` error for `Microsoft.EventGrid`, register the resource provider first:
+> ```bash
+> az provider register --namespace Microsoft.EventGrid
+> az provider show --namespace Microsoft.EventGrid --query "registrationState" -o tsv
+> ```
+> Wait until the state shows `Registered`, then re-run `azd up`.
 
 By default, resource names are generated from `AZURE_ENV_NAME` and `AZURE_LOCATION` using the pattern `<prefix>-<env>-azreaper-<location>`, for example `rg-d1-azreaper-westeurope`. The storage account uses the same inputs but is sanitized to satisfy Azure naming rules (lowercase alphanumeric only, maximum 24 characters).
 
