@@ -51,6 +51,8 @@ configure_event_subscription() {
       --subject-begins-with "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/" \
       --output none
   fi
+
+  return $?
 }
 
 echo "Waiting for Azure Function resource to become available..."
