@@ -37,6 +37,10 @@ Azure Reaper currently has the following limitations:
 Azure Reaper is under active development and is constantly evolving. The capabilities and performance of the project are continually being improved.
 
 # Deployment guide
+
+> [!WARNING]
+> Azure Reaper uses a custom role that grants its managed identity permission to read, modify tags on, and **delete** any resource group in the target subscription. While this role is scoped to resource group lifecycle operations only, it is still highly privileged. Deployment is recommended for **test and development subscriptions only**. Do not deploy to production subscriptions without a thorough security review.
+
 Azure Reaper is deployed with Azure Developer CLI (`azd`) and Terraform.
 
 ## Prerequisites
@@ -46,10 +50,10 @@ The user running the deployment needs the following permissions on the target Az
 
 | Permission | Reason |
 | ----- | ----- |
-| **Owner** (or Contributor + User Access Administrator) | The deployment creates a role assignment for the Function App's managed identity, which requires `Microsoft.Authorization/roleAssignments/write`. |
+| **Owner** (or Contributor + User Access Administrator) | The deployment creates a custom role definition and role assignments, which requires `Microsoft.Authorization/roleAssignments/write` and `Microsoft.Authorization/roleDefinitions/write`. |
 | Resource provider registration | The `Microsoft.EventGrid` resource provider must be registered on the subscription (see tip below). |
 
-During provisioning, the Function App's system-assigned managed identity is granted **Contributor** on the subscription so it can read, tag, and delete resource groups at runtime.
+During provisioning, the deployment creates a custom **Azure Reaper Operator** role with least-privilege permissions (read, tag, and delete resource groups only) and assigns it to the Function App's system-assigned managed identity. Storage access uses managed identity authentication — no connection strings or access keys are stored in app settings.
 
 ### Required tooling
 

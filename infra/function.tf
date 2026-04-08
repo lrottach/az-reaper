@@ -62,11 +62,10 @@ resource "azurerm_function_app_flex_consumption" "reaper" {
   location            = azurerm_resource_group.main.location
   service_plan_id     = azurerm_service_plan.reaper.id
 
-  # Deployment package storage
+  # Deployment package storage (identity-based)
   storage_container_type      = "blobContainer"
   storage_container_endpoint  = "${azurerm_storage_account.reaper.primary_blob_endpoint}deploymentpackage"
-  storage_authentication_type = "StorageAccountConnectionString"
-  storage_access_key          = azurerm_storage_account.reaper.primary_access_key
+  storage_authentication_type = "SystemAssignedIdentity"
 
   # Runtime
   runtime_name    = "dotnet-isolated"
@@ -85,9 +84,9 @@ resource "azurerm_function_app_flex_consumption" "reaper" {
   }
 
   app_settings = {
-    "AzureWebJobsStorage" = azurerm_storage_account.reaper.primary_connection_string
-    "LifetimeTagName"     = var.lifetime_tag_name
-    "StatusTagName"       = var.status_tag_name
+    "AzureWebJobsStorage__accountName" = azurerm_storage_account.reaper.name
+    "LifetimeTagName"                  = var.lifetime_tag_name
+    "StatusTagName"                    = var.status_tag_name
   }
 
   tags = merge(local.default_tags, {
@@ -95,9 +94,48 @@ resource "azurerm_function_app_flex_consumption" "reaper" {
   })
 }
 
-# Role Assignment: Contributor on subscription for managed identity
-resource "azurerm_role_assignment" "contributor" {
-  scope                = "/subscriptions/${var.AZURE_SUBSCRIPTION_ID}"
-  role_definition_name = "Contributor"
+# ==============================================================================
+# RBAC: Custom least-privilege role for Azure Reaper
+# ==============================================================================
+
+resource "azurerm_role_definition" "reaper" {
+  name        = "Azure Reaper Operator"
+  scope       = "/subscriptions/${var.AZURE_SUBSCRIPTION_ID}"
+  description = "Allows reading, tagging, and deleting resource groups for Azure Reaper"
+
+  permissions {
+    actions = [
+      "Microsoft.Resources/subscriptions/resourceGroups/read",
+      "Microsoft.Resources/subscriptions/resourceGroups/write",
+      "Microsoft.Resources/subscriptions/resourceGroups/delete",
+    ]
+  }
+}
+
+resource "azurerm_role_assignment" "reaper_operator" {
+  scope              = "/subscriptions/${var.AZURE_SUBSCRIPTION_ID}"
+  role_definition_id = azurerm_role_definition.reaper.role_definition_resource_id
+  principal_id       = azurerm_function_app_flex_consumption.reaper.identity[0].principal_id
+}
+
+# ==============================================================================
+# RBAC: Storage access for managed identity
+# ==============================================================================
+
+resource "azurerm_role_assignment" "storage_blob" {
+  scope                = azurerm_storage_account.reaper.id
+  role_definition_name = "Storage Blob Data Owner"
+  principal_id         = azurerm_function_app_flex_consumption.reaper.identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "storage_queue" {
+  scope                = azurerm_storage_account.reaper.id
+  role_definition_name = "Storage Queue Data Contributor"
+  principal_id         = azurerm_function_app_flex_consumption.reaper.identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "storage_table" {
+  scope                = azurerm_storage_account.reaper.id
+  role_definition_name = "Storage Table Data Contributor"
   principal_id         = azurerm_function_app_flex_consumption.reaper.identity[0].principal_id
 }
