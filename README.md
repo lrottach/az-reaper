@@ -55,6 +55,8 @@ The user running the deployment needs the following permissions on the target Az
 
 During provisioning, the deployment creates a custom **Azure Reaper Operator** role with least-privilege permissions (read, tag, and delete resource groups only) and assigns it to the Function App's system-assigned managed identity. Storage access uses managed identity authentication — no connection strings or access keys are stored in app settings.
 
+For the current dev/test setup, Terraform also auto-grants the **currently authenticated deployer principal** `Storage Blob Data Contributor` on the deployment storage account. This is needed because `azd deploy` uploads the function package to Blob Storage by using Azure AD data-plane access, and subscription-level Owner/Contributor rights alone are not sufficient for that upload.
+
 ### Required tooling
 
 1. Install the required tooling: `az`, `azd`, `dotnet` 10, and Azure Functions Core Tools 4.x.
@@ -73,6 +75,8 @@ During provisioning, the deployment creates a custom **Azure Reaper Operator** r
    azd up
    ```
 
+`azd up` provisions the infrastructure, waits briefly for the deployer's Blob role assignment to propagate, deploys the Function App package, and then runs `scripts/postdeploy.sh` to create or update the Event Grid subscription.
+
 > [!TIP]
 > If provisioning fails with a `MissingSubscriptionRegistration` error for `Microsoft.EventGrid`, register the resource provider first:
 > ```bash
@@ -80,6 +84,9 @@ During provisioning, the deployment creates a custom **Azure Reaper Operator** r
 > az provider show --namespace Microsoft.EventGrid --query "registrationState" -o tsv
 > ```
 > Wait until the state shows `Registered`, then re-run `azd up`.
+
+> [!NOTE]
+> The repository includes `infra/main.tfvars.json` because `azd` expects that parameter template for Terraform projects. It passes the core `AZURE_*` values into Terraform, while optional naming overrides still come from `azd env set TF_VAR_<name> ...`.
 
 By default, resource names are generated from `AZURE_ENV_NAME` and `AZURE_LOCATION` using the pattern `<prefix>-<env>-azreaper-<location>`, for example `rg-d1-azreaper-westeurope`. The storage account uses the same inputs but is sanitized to satisfy Azure naming rules (lowercase alphanumeric only, maximum 24 characters).
 
@@ -99,7 +106,9 @@ azd env set TF_VAR_eventgrid_system_topic_name evgt-custom-reaper
 azd env set TF_VAR_eventgrid_event_subscription_name evs-custom-reaper
 ```
 
-After infrastructure provisioning, `azd` deploys the Function App and runs the postdeploy hook to create or update the Event Grid event subscription. The hook targets the `EventGridTrigger` function by its Azure resource ID, so no Function key is embedded in the Event Grid endpoint configuration.
+After infrastructure provisioning, `azd` deploys the Function App and runs the postdeploy hook to create or update the Event Grid event subscription. The hook first tries to target the `EventGridTrigger` function by its Azure resource ID. If that native Function endpoint is not accepted yet on the hosting plan or platform, the hook falls back to the Event Grid webhook endpoint using the Function's Event Grid system key.
+
+If a different user or CI identity later runs `azd deploy` against the same environment, that identity must also have `Storage Blob Data Contributor` on the deployment storage account. The current auto-grant behavior is a convenience for this repository's dev/test workflow and should be reviewed before reusing the template in stricter production environments.
 
 
 

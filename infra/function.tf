@@ -2,6 +2,8 @@
 # Azure Function App and supporting resources (Flex Consumption)
 # ==============================================================================
 
+data "azurerm_client_config" "current" {}
+
 # Storage Account (Durable Functions backend + deployment packages)
 resource "azurerm_storage_account" "reaper" {
   name                            = local.storage_account_name
@@ -84,7 +86,9 @@ resource "azurerm_function_app_flex_consumption" "reaper" {
   }
 
   app_settings = {
+    "AzureWebJobsStorage"              = ""
     "AzureWebJobsStorage__accountName" = azurerm_storage_account.reaper.name
+    "AzureWebJobsStorage__credential"  = "managedidentity"
     "LifetimeTagName"                  = var.lifetime_tag_name
     "StatusTagName"                    = var.status_tag_name
   }
@@ -128,6 +132,12 @@ resource "azurerm_role_assignment" "storage_blob" {
   principal_id         = azurerm_function_app_flex_consumption.reaper.identity[0].principal_id
 }
 
+resource "azurerm_role_assignment" "deployer_storage_blob" {
+  scope                = azurerm_storage_account.reaper.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = data.azurerm_client_config.current.object_id
+}
+
 resource "azurerm_role_assignment" "storage_queue" {
   scope                = azurerm_storage_account.reaper.id
   role_definition_name = "Storage Queue Data Contributor"
@@ -138,4 +148,10 @@ resource "azurerm_role_assignment" "storage_table" {
   scope                = azurerm_storage_account.reaper.id
   role_definition_name = "Storage Table Data Contributor"
   principal_id         = azurerm_function_app_flex_consumption.reaper.identity[0].principal_id
+}
+
+resource "time_sleep" "wait_for_deployer_storage_blob_rbac" {
+  depends_on = [azurerm_role_assignment.deployer_storage_blob]
+
+  create_duration = "45s"
 }
