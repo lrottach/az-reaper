@@ -79,6 +79,9 @@ During provisioning, the Function App's system-assigned managed identity is gran
 
 By default, resource names are generated from `AZURE_ENV_NAME` and `AZURE_LOCATION` using the pattern `<prefix>-<env>-azreaper-<location>`, for example `rg-d1-azreaper-westeurope`. The storage account uses the same inputs but is sanitized to satisfy Azure naming rules (lowercase alphanumeric only, maximum 24 characters).
 
+> [!NOTE]
+> If your environment name is too generic or common, the derived storage account name may already be taken globally. In that case, provisioning will fail. Use a more unique environment name or override the storage account name with `azd env set TF_VAR_storage_account_name <unique-name>`.
+
 You can still bring your own names by setting Terraform override variables in the `azd` environment before running `azd up`:
 
 ```bash
