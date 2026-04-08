@@ -99,7 +99,7 @@ azd env set TF_VAR_eventgrid_system_topic_name evgt-custom-reaper
 azd env set TF_VAR_eventgrid_event_subscription_name evs-custom-reaper
 ```
 
-After infrastructure provisioning, `azd` deploys the Function App and runs the postdeploy hook to create or update the Event Grid event subscription that targets the `EventGridTrigger` function.
+After infrastructure provisioning, `azd` deploys the Function App and runs the postdeploy hook to create or update the Event Grid event subscription. The hook targets the `EventGridTrigger` function by its Azure resource ID, so no Function key is embedded in the Event Grid endpoint configuration.
 
 
 
