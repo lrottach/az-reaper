@@ -88,7 +88,7 @@ For the current dev/test setup, Terraform also auto-grants the **currently authe
 > [!NOTE]
 > The repository includes `infra/main.tfvars.json` because `azd` expects that parameter template for Terraform projects. It passes the core `AZURE_*` values into Terraform, while optional naming overrides still come from `azd env set TF_VAR_<name> ...`.
 
-By default, resource names are generated from `AZURE_ENV_NAME` and `AZURE_LOCATION` using the pattern `<prefix>-<env>-azreaper-<location>`, for example `rg-d1-azreaper-westeurope`. The storage account uses the same inputs but is sanitized to satisfy Azure naming rules (lowercase alphanumeric only, maximum 24 characters).
+By default, resource names are generated from `AZURE_ENV_NAME` and `AZURE_LOCATION` using the pattern `<prefix>-<env>-azreaper-<location>`, for example `rg-d1-azreaper-westeurope`. For generated defaults, Terraform lowercases those inputs and replaces non-alphanumeric characters with `-`. The storage account uses the same inputs but removes non-alphanumeric characters entirely so the final name stays within Azure's lowercase alphanumeric 3-24 character rule.
 
 > [!NOTE]
 > If your environment name is too generic or common, the derived storage account name may already be taken globally. In that case, provisioning will fail. Use a more unique environment name or override the storage account name with `azd env set TF_VAR_storage_account_name <unique-name>`.
@@ -109,6 +109,17 @@ azd env set TF_VAR_eventgrid_event_subscription_name evs-custom-reaper
 After infrastructure provisioning, `azd` deploys the Function App and runs the postdeploy hook to create or update the Event Grid event subscription. The hook first tries to target the `EventGridTrigger` function by its Azure resource ID. If that native Function endpoint is not accepted yet on the hosting plan or platform, the hook falls back to the Event Grid webhook endpoint using the Function's Event Grid system key.
 
 If a different user or CI identity later runs `azd deploy` against the same environment, that identity must also have `Storage Blob Data Contributor` on the deployment storage account. The current auto-grant behavior is a convenience for this repository's dev/test workflow and should be reviewed before reusing the template in stricter production environments.
+
+## Deprovisioning
+
+To remove all Azure resources created by this deployment:
+
+```bash
+azd down
+```
+
+> [!NOTE]
+> The Terraform provider is configured with `prevent_deletion_if_contains_resources = false`. This means `azd down` will delete the resource group and all its contents, including resources not directly managed by Terraform (e.g., the smart detection alert rule auto-created by Application Insights). This is intentional for this self-contained project but should be reviewed if the template is reused in shared environments.
 
 
 
