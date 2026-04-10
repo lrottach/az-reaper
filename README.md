@@ -14,7 +14,7 @@ Azure Reaper is a automation tool built on the robust foundation of Azure Functi
 The idea is based on Jeff Holan's great [﻿functions-csharp-entities-grimreaper](https://github.com/jeffhollan/functions-csharp-entities-grimreaper), rewritten in a more simple form without the Twilio SMS part.
 
 ## Architecture
-![Azure Reaper - High Level](/.eraser/l4XQEUndY4eCyx0QUlsY___In9Uw2nCBah8b789trG5jB2NNPv1___---figure---qetgun-3A-w2o2ntuvxo4---figure---pievCzn1kLeqIGOqKsGwqw.png "Azure Reaper - High Level")
+![Cloud Reaper for Azure - Workflow](./assets/azure_reaper_architecture.png "Cloud Reaper for Azure - Workflow")
 
 ## Tags
 Azure Reaper uses specific tags to manage the lifecycle of Azure resource groups. Tag names are configurable via environment variables (`LifetimeTagName`, `StatusTagName`). Below are the default tags and their use cases:
@@ -38,7 +38,7 @@ Azure Reaper is under active development and is constantly evolving. The capabil
 
 # Deployment guide
 
-![Deployment flow](./assets/deployment-flow.png "")
+![Cloud Reaper for Azure - Deployment Flow](./assets/azure_reaper_deployment_flow.png "Cloud Reaper for Azure - Deployment Flow")
 
 > [!WARNING]
 > Azure Reaper uses a custom role that grants its managed identity permission to read, modify tags on, and **delete** any resource group in the target subscription. While this role is scoped to resource group lifecycle operations only, it is still highly privileged. Deployment is recommended for **test and development subscriptions only**. Do not deploy to production subscriptions without a thorough security review.
