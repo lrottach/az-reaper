@@ -17,7 +17,7 @@
       },
       "storageProvider": {
         "type": "AzureStorage",
-        "connectionStringName": "AzureWebJobsStorage"
+        "connectionName": "AzureWebJobsStorage"
       }
     }
   }
