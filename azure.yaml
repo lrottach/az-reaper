@@ -9,7 +9,7 @@ services:
     host: function
 hooks:
   postdeploy:
-    shell: bash
+    shell: sh
     run: scripts/postdeploy.sh
     interactive: false
     continueOnError: false

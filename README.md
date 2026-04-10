@@ -2,7 +2,7 @@
 
 [![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-highlight.svg)](https://sonarcloud.io/summary/new_code?id=lrottach_az-reaper)
 
-![Azure Reaper banner](./assets/reaper_banner.png "")
+![Azure Reaper banner](./assets/reaper_banner_v2.png "")
 
 # Azure Reaper
 **In the age-old dance of creation and destruction, behold Azure Reaper, a guardian wrought in code and cloud. Its purpose noble, it wields the power to vanquish Azure resources marked by time’s decree, ensuring realms of development and testing stand uncluttered, their legacies preserved in the annals of digital lore.**
@@ -37,6 +37,8 @@ Azure Reaper currently has the following limitations:
 Azure Reaper is under active development and is constantly evolving. The capabilities and performance of the project are continually being improved.
 
 # Deployment guide
+
+![Deployment flow](./assets/deployment-flow.png "")
 
 > [!WARNING]
 > Azure Reaper uses a custom role that grants its managed identity permission to read, modify tags on, and **delete** any resource group in the target subscription. While this role is scoped to resource group lifecycle operations only, it is still highly privileged. Deployment is recommended for **test and development subscriptions only**. Do not deploy to production subscriptions without a thorough security review.
