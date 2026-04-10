@@ -128,7 +128,7 @@ resource "azurerm_role_assignment" "reaper_operator" {
 
 resource "azurerm_role_assignment" "storage_blob" {
   scope                = azurerm_storage_account.reaper.id
-  role_definition_name = "Storage Blob Data Owner"
+  role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_function_app_flex_consumption.reaper.identity[0].principal_id
 }
 

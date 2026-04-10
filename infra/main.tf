@@ -3,10 +3,10 @@
 # ==============================================================================
 
 locals {
-  normalized_env_name               = replace(lower(var.AZURE_ENV_NAME), "/[^a-z0-9]/", "-")
-  normalized_location               = replace(lower(var.AZURE_LOCATION), "/[^a-z0-9]/", "-")
+  normalized_env_name               = regexreplace(lower(var.AZURE_ENV_NAME), "[^a-z0-9]", "-")
+  normalized_location               = regexreplace(lower(var.AZURE_LOCATION), "[^a-z0-9]", "-")
   name_suffix                       = "${local.normalized_env_name}-azreaper-${local.normalized_location}"
-  storage_account_default_name      = substr(replace("st${local.normalized_env_name}azreaper${local.normalized_location}", "/[^a-z0-9]/", ""), 0, 24)
+  storage_account_default_name      = substr(regexreplace("st${local.normalized_env_name}azreaper${local.normalized_location}", "[^a-z0-9]", ""), 0, 24)
   resource_group_name               = var.resource_group_name != "" ? var.resource_group_name : "rg-${local.name_suffix}"
   storage_account_name              = var.storage_account_name != "" ? var.storage_account_name : local.storage_account_default_name
   function_app_name                 = var.function_app_name != "" ? var.function_app_name : "func-${local.name_suffix}"
