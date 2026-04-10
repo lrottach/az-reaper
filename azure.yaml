@@ -1,0 +1,15 @@
+name: az-reaper
+infra:
+  provider: terraform
+  path: ./infra
+services:
+  functions:
+    project: ./src/AzureReaper.Functions
+    language: csharp
+    host: function
+hooks:
+  postdeploy:
+    shell: sh
+    run: scripts/postdeploy.sh
+    interactive: false
+    continueOnError: false
