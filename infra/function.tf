@@ -13,6 +13,8 @@ resource "azurerm_storage_account" "reaper" {
   account_replication_type        = "LRS"
   account_kind                    = "StorageV2"
   allow_nested_items_to_be_public = false
+  https_traffic_only_enabled      = true
+  min_tls_version                 = "TLS1_2"
 
   tags = local.default_tags
 }
@@ -104,7 +106,7 @@ resource "azurerm_function_app_flex_consumption" "reaper" {
 # ==============================================================================
 
 resource "azurerm_role_definition" "reaper" {
-  name        = "Azure Reaper Operator"
+  name        = "Azure Reaper Operator (${var.AZURE_ENV_NAME})"
   scope       = "/subscriptions/${var.AZURE_SUBSCRIPTION_ID}"
   description = "Allows reading, tagging, and deleting resource groups for Azure Reaper"
 
