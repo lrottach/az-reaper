@@ -1,5 +1,7 @@
-POST https://example.com/comments HTTP/1.1
-content-type: application/json
+### Azure EventGrid - Local development
+POST http://localhost:7071/runtime/webhooks/EventGrid?functionName=EventGridTrigger
+Content-Type: application/json
+aeg-event-type: Notification
 
 [
 	{

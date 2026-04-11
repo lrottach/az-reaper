@@ -121,4 +121,139 @@ azd down
 
 
 
+# Local Development
+
+### Prerequisites
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| [.NET SDK](https://dotnet.microsoft.com/download) | 10.0+ | Build and run the Functions app |
+| [Azure Functions Core Tools](https://learn.microsoft.com/azure/azure-functions/functions-run-local) | 4.x | Local Functions runtime (`func start`) |
+| [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) | latest | Azure authentication and management |
+| [Azure Developer CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd) | 1.x | Streamlined deployment with `azd up` |
+| [Terraform](https://developer.hashicorp.com/terraform/install) | latest | Infrastructure provisioning |
+| [Docker](https://docs.docker.com/get-docker/) or [Podman](https://podman.io/) | latest | Run Azurite (Azure Storage emulator) |
+
+> **Tip:** A [Dev Container](#dev-container) is included with all prerequisites pre-installed — just open the project in VS Code or GitHub Codespaces.
+
+### Quick Start
+
+**1. Clone the repository**
+
+```bash
+git clone https://github.com/lrottach/az-reaper.git
+cd az-reaper
+```
+
+**2. Start Azurite**
+
+```bash
+docker compose up -d azurite   # or: podman compose up -d azurite
+```
+
+**3. Create local settings**
+
+```bash
+cp src/AzureReaper.Functions/local.settings.sample.json \
+   src/AzureReaper.Functions/local.settings.json
+```
+
+**4. Build and run**
+
+```bash
+cd src/AzureReaper.Functions
+dotnet build
+func start
+```
+
+The function app will start at `http://localhost:7071`.
+
+### Testing the EventGrid Trigger
+
+The function listens for EventGrid events at:
+
+```
+POST http://localhost:7071/runtime/webhooks/EventGrid?functionName=EventGridTrigger
+```
+
+Required header: `aeg-event-type: Notification`
+
+**Using VS Code REST Client:** Open `rest/eventgrid.http` and click "Send Request".
+
+**Using curl:**
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "aeg-event-type: Notification" \
+  -d @rest/payload.example.json \
+  http://localhost:7071/runtime/webhooks/EventGrid?functionName=EventGridTrigger
+```
+
+### Testing Against Real Azure Resources
+
+By default the example payloads use placeholder subscription and resource group values (`xxxxxxxx-…`). To test tagging, scheduling, and deletion of actual resource groups in Azure, you need to authenticate locally and point the payload at a real resource group.
+
+**1. Authenticate with Azure CLI**
+
+Sign in with the Azure CLI so the Functions app can obtain a token via `DefaultAzureCredential`:
+
+```bash
+az login
+```
+
+If your account has access to multiple tenants or subscriptions, select the correct one:
+
+```bash
+az account set --subscription "<subscription-id-or-name>"
+```
+
+Verify your session:
+
+```bash
+az account show
+```
+
+**2. Rewrite the EventGrid payload**
+
+Open `rest/eventgrid.http` (or `rest/payload.example.json`) and replace every `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` subscription placeholder with your real subscription ID. Then set the resource group name to the one you want Azure Reaper to target.
+
+The two fields that matter most are `subject` and `data.resourceUri` — they must contain the full resource ID of the target resource group:
+
+```
+/subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>
+```
+
+Also update these fields to match:
+
+| Field | Value |
+|-------|-------|
+| `subject` | `/subscriptions/<sub-id>/resourceGroups/<rg-name>` |
+| `data.authorization.scope` | `/subscriptions/<sub-id>/resourceGroups/<rg-name>` |
+| `data.resourceUri` | `/subscriptions/<sub-id>/resourceGroups/<rg-name>` |
+| `data.subscriptionId` | `<sub-id>` |
+| `topic` | `/subscriptions/<sub-id>` |
+
+> **Warning:** This will schedule a real deletion. Make sure the target resource group is a throwaway test group and has the `CloudReaperLifetime` tag set (value in minutes). Apply a resource lock first if you want to verify scheduling without actually deleting.
+
+**3. Send the request**
+
+Fire the modified payload against the local function app as described in [Testing the EventGrid Trigger](#testing-the-eventgrid-trigger). Azure Reaper will use your `az login` session to read tags, apply the `CloudReaperStatus` tag, and schedule deletion via the Durable Entity.
+
+### Environment Variables
+
+Configured in `src/AzureReaper.Functions/local.settings.json` (see [`local.settings.sample.json`](src/AzureReaper.Functions/local.settings.sample.json) for a template):
+
+| Variable | Default | Mandatory | Description |
+|----------|---------|-----------|-------------|
+| `AzureWebJobsStorage` | `UseDevelopmentStorage=true` | Yes | Storage connection — uses local Azurite |
+| `FUNCTIONS_WORKER_RUNTIME` | `dotnet-isolated` | Yes | Required for the isolated worker model |
+| `LifetimeTagName` | `CloudReaperLifetime` | No | Custom tag name for resource group lifetime (minutes) |
+| `StatusTagName` | `CloudReaperStatus` | No | Custom tag name applied when deletion is scheduled |
+
+### Dev Container
+
+The repository includes a Dev Container (`.devcontainer/`) that provides a ready-to-go environment with .NET 10, Azure CLI, Azure Functions Core Tools, Docker, and GitHub CLI pre-installed. Open the project in VS Code with the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) or use [GitHub Codespaces](https://github.com/features/codespaces) to get started instantly.
+
+
 <!--- Eraser file: https://app.eraser.io/workspace/l4XQEUndY4eCyx0QUlsY --->
