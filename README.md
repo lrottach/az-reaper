@@ -6,8 +6,9 @@
 > [!NOTE]
 > Cloud Reaper for Azure has been completely rewritten for v2.0.0 using .NET 10 and the Azure Functions isolated worker model. If you are interested in the original version, check out the `./archive` directory.
 
-Cloud Reaper for Azure is a automation tool built on the robust foundation of Azure Functions to streamline the management of your cloud environment. This solution specializes in automatically deleting groups of resources tagged to your specifications, making it ideal for development and test environments. With Cloud Reaper for Azure, you not only save money by eliminating unnecessary resource sprawl, but you also reduce the burden of manual cleanup. Leverage this seamless integration into your workflow to increase efficiency, reduce costs, and maintain a focused, clutter-free cloud environment.
-The idea is based on Jeff Holan's great [﻿functions-csharp-entities-grimreaper](https://github.com/jeffhollan/functions-csharp-entities-grimreaper), rewritten in a more simple form without the Twilio SMS part.
+Cloud Reaper for Azure automatically deletes tagged Azure resource groups after a specified lifetime -- keeping dev and test subscriptions clean and your cloud bill in check. Tag a resource group, walk away, and let the reaper handle the rest.
+
+Inspired by Jeff Holan's [functions-csharp-entities-grimreaper](https://github.com/jeffhollan/functions-csharp-entities-grimreaper), rebuilt from the ground up with .NET 10, Azure Functions isolated worker model, and Durable Entities.
 
 ## Architecture
 ![Cloud Reaper for Azure - Workflow](./assets/azure_reaper_architecture.png "Cloud Reaper for Azure - Workflow")
