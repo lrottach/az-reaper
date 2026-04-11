@@ -153,7 +153,7 @@ public class AzureResourceEntity(
             logger.LogInformation("[EntityTrigger] Lifetime tag '{tag}' removed from Resource Group '{rg}'. Cancelling scheduled deletion.",
                 _lifetimeTagName, State.ResourceGroupName);
 
-            // Clean up reaper metadata tags if they exist
+            // Clean up reaper metadata tags (best-effort — entity cleanup must not be blocked by tag removal failures)
             try
             {
                 if (rg.Data.Tags.ContainsKey(_statusTagName))
@@ -166,9 +166,9 @@ public class AzureResourceEntity(
                     await azureResourceService.RemoveResourceGroupTag(State.SubscriptionId!, State.ResourceGroupName!, _deletionTimeTagName);
                 }
             }
-            catch (RequestFailedException ex) when (ex.Status == 404)
+            catch (RequestFailedException ex)
             {
-                logger.LogWarning("[EntityTrigger] Resource Group '{rg}' was deleted before cleanup tags could be removed", State.ResourceGroupName);
+                logger.LogWarning(ex, "[EntityTrigger] Failed to remove cleanup tags from Resource Group '{rg}'. Entity will still be cleaned up.", State.ResourceGroupName);
             }
 
             State = null!;
