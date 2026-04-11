@@ -1,47 +1,46 @@
-![Azure Reaper banner](./assets/reaper_banner_v2.png "")
+![Cloud Reaper for Azure banner](./assets/reaper_banner_v2.png "")
 
-# Azure Reaper
-**In the age-old dance of creation and destruction, behold Azure Reaper, a guardian wrought in code and cloud. Its purpose noble, it wields the power to vanquish Azure resources marked by time’s decree, ensuring realms of development and testing stand uncluttered, their legacies preserved in the annals of digital lore.**
+# Cloud Reaper for Azure
+**In the age-old dance of creation and destruction, behold Cloud Reaper for Azure, a guardian wrought in code and cloud. Its purpose noble, it wields the power to vanquish Azure resources marked by time’s decree, ensuring realms of development and testing stand uncluttered, their legacies preserved in the annals of digital lore.**
 
->  [!IMPORTANT]
-Please note that Azure Reaper is currently undergoing a major rewrite to leverage the latest .NET and Azure Functions frameworks. The version available on the main branch is under active development and may be unstable. For those interested in the previous stable version, it can be found in the ./archive directory of this repository. I appreciate your interest and patience as I am working to improve the capabilities and performance of Azure Reaper.
+> [!NOTE]
+> Cloud Reaper for Azure has been completely rewritten for v2.0.0 using .NET 10 and the Azure Functions isolated worker model. If you are interested in the original version, check out the `./archive` directory.
 
-Azure Reaper is a automation tool built on the robust foundation of Azure Functions to streamline the management of your cloud environment. This solution specializes in automatically deleting groups of resources tagged to your specifications, making it ideal for development and test environments. With Azure Reaper, you not only save money by eliminating unnecessary resource sprawl, but you also reduce the burden of manual cleanup. Leverage this seamless integration into your workflow to increase efficiency, reduce costs, and maintain a focused, clutter-free cloud environment.
-The idea is based on Jeff Holan's great [﻿functions-csharp-entities-grimreaper](https://github.com/jeffhollan/functions-csharp-entities-grimreaper), rewritten in a more simple form without the Twilio SMS part.
+Cloud Reaper for Azure automatically deletes tagged Azure resource groups after a specified lifetime -- keeping dev and test subscriptions clean and your cloud bill in check. Tag a resource group, walk away, and let the reaper handle the rest.
+
+Inspired by Jeff Holan's [functions-csharp-entities-grimreaper](https://github.com/jeffhollan/functions-csharp-entities-grimreaper), rebuilt from the ground up with .NET 10, Azure Functions isolated worker model, and Durable Entities.
 
 ## Architecture
 ![Cloud Reaper for Azure - Workflow](./assets/azure_reaper_architecture.png "Cloud Reaper for Azure - Workflow")
 
 ## Tags
-Azure Reaper uses specific tags to manage the lifecycle of Azure resource groups. Tag names are configurable via environment variables (`LifetimeTagName`, `StatusTagName`). Below are the default tags and their use cases:
+Cloud Reaper for Azure uses specific tags to manage the lifecycle of Azure resource groups. Tag names are configurable via environment variables (`LifetimeTagName`, `StatusTagName`). Below are the default tags and their use cases:
 
 | Tag Name | Description | Example Value | Responsibility | Comments |
 | ----- | ----- | ----- | ----- | ----- |
 | CloudReaperLifetime | This tag is applied when the resource group is created by the engineer. It specifies the lifespan of the resource group in minutes before it should be deleted. The value must be a positive integer (> 0). Values of 0, negative numbers, or non-integer strings are ignored. Configurable via `LifetimeTagName`. | 60 (for 60 minutes lifetime) | User |  |
-| CloudReaperStatus | This tag is applied by Azure Reaper after successful validation and scheduling of the resource group’s deletion. It indicates that the resource group is confirmed for deletion. Configurable via `StatusTagName`. | Confirmed | Azure Reaper | Can be used to return comments or error messages from Azure Reaper |
-| CloudReaperDeletionTime | Applied by Azure Reaper after scheduling deletion. Shows the exact UTC timestamp when the resource group will be deleted (ISO 8601 format). Configurable via `DeletionTimeTagName`. | 2024-05-31T15:30:00.0000000+00:00 | Azure Reaper |  |
+| CloudReaperStatus | This tag is applied by Cloud Reaper for Azure after successful validation and scheduling of the resource group’s deletion. It indicates that the resource group is confirmed for deletion. Configurable via `StatusTagName`. | Confirmed | Cloud Reaper for Azure | Can be used to return comments or error messages from Cloud Reaper for Azure |
+| CloudReaperDeletionTime | Applied by Cloud Reaper for Azure after scheduling deletion. Shows the exact UTC timestamp when the resource group will be deleted (ISO 8601 format). Configurable via `DeletionTimeTagName`. | 2024-05-31T15:30:00.0000000+00:00 | Cloud Reaper for Azure |  |
 ## Limitations
-Azure Reaper currently has the following limitations:
+Cloud Reaper for Azure currently has the following limitations:
 
 | Description | Status |
 | ----- | ----- |
-| It is not possible to stop the deletion of a scheduled resource group. 😅 However, a lock can be applied to prevent deletion. | ✅ Workaround Available |
-| Azure Reaper has only been tested with a single subscription. Multi-subscription support is planned. | 🔨 Planned Improvement |
-| Azure Reaper operates only at the Azure Resource Group level, not on individual resources | 🗒️ Current Functionality |
-| Azure Reaper uses UTC internally for all scheduling and timestamps (e.g. `CloudReaperDeletionTime`). There is currently no option to configure a different time zone. | 🗒️ Current Functionality |
-| Re-scheduling a deletion by updating the `CloudReaperLifetime` tag value after the resource group has already been scheduled is not supported. The original schedule remains active. | 🗒️ Current Functionality |
-| These limitations will be actively addressed in future updates to help make Azure Reaper work and play better. |  |
+| Cloud Reaper for Azure has only been tested with a single subscription. Multi-subscription support is planned. | Planned Improvement |
+| Cloud Reaper for Azure operates only at the Azure Resource Group level, not on individual resources | Current Functionality |
+| Cloud Reaper for Azure uses UTC internally for all scheduling and timestamps (e.g. `CloudReaperDeletionTime`). There is currently no option to configure a different time zone. | Current Functionality |
+| Re-scheduling a deletion by updating the `CloudReaperLifetime` tag value after the resource group has already been scheduled is not supported. The original schedule remains active. | Current Functionality |
 ## Status
-Azure Reaper is under active development and is constantly evolving. The capabilities and performance of the project are continually being improved.
+Cloud Reaper for Azure is under active development and is constantly evolving. The capabilities and performance of the project are continually being improved.
 
 # Deployment guide
 
 ![Cloud Reaper for Azure - Deployment Flow](./assets/azure_reaper_deployment_flow.png "Cloud Reaper for Azure - Deployment Flow")
 
 > [!WARNING]
-> Azure Reaper uses a custom role that grants its managed identity permission to read, modify tags on, and **delete** any resource group in the target subscription. While this role is scoped to resource group lifecycle operations only, it is still highly privileged. Deployment is recommended for **test and development subscriptions only**. Do not deploy to production subscriptions without a thorough security review.
+> Cloud Reaper for Azure uses a custom role that grants its managed identity permission to read, modify tags on, and **delete** any resource group in the target subscription. While this role is scoped to resource group lifecycle operations only, it is still highly privileged. Deployment is recommended for **test and development subscriptions only**. Do not deploy to production subscriptions without a thorough security review.
 
-Azure Reaper is deployed with Azure Developer CLI (`azd`) and Terraform.
+Cloud Reaper for Azure is deployed with Azure Developer CLI (`azd`) and Terraform.
 
 ## Prerequisites
 
@@ -218,7 +217,7 @@ az account show
 
 **2. Rewrite the EventGrid payload**
 
-Open `rest/eventgrid.http` (or `rest/payload.example.json`) and replace every `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` subscription placeholder with your real subscription ID. Then set the resource group name to the one you want Azure Reaper to target.
+Open `rest/eventgrid.http` (or `rest/payload.example.json`) and replace every `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` subscription placeholder with your real subscription ID. Then set the resource group name to the one you want Cloud Reaper for Azure to target.
 
 The two fields that matter most are `subject` and `data.resourceUri` — they must contain the full resource ID of the target resource group:
 
@@ -240,7 +239,7 @@ Also update these fields to match:
 
 **3. Send the request**
 
-Fire the modified payload against the local function app as described in [Testing the EventGrid Trigger](#testing-the-eventgrid-trigger). Azure Reaper will use your `az login` session to read tags, apply the `CloudReaperStatus` tag, and schedule deletion via the Durable Entity.
+Fire the modified payload against the local function app as described in [Testing the EventGrid Trigger](#testing-the-eventgrid-trigger). Cloud Reaper for Azure will use your `az login` session to read tags, apply the `CloudReaperStatus` tag, and schedule deletion via the Durable Entity.
 
 ### Environment Variables
 

@@ -10,3 +10,11 @@ updates:
    directory: "/"
    schedule:
      interval: weekly
+ - package-ecosystem: "nuget"
+   directory: "/src/AzureReaper.Functions"
+   schedule:
+     interval: weekly
+ - package-ecosystem: "terraform"
+   directory: "/infra"
+   schedule:
+     interval: weekly
