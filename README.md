@@ -29,6 +29,7 @@ Azure Reaper currently has the following limitations:
 | Azure Reaper has only been tested with a single subscription. Multi-subscription support is planned. | 🔨 Planned Improvement |
 | Azure Reaper operates only at the Azure Resource Group level, not on individual resources | 🗒️ Current Functionality |
 | Azure Reaper uses UTC internally for all scheduling and timestamps (e.g. `CloudReaperDeletionTime`). There is currently no option to configure a different time zone. | 🗒️ Current Functionality |
+| Re-scheduling a deletion by updating the `CloudReaperLifetime` tag value after the resource group has already been scheduled is not supported. The original schedule remains active. | 🗒️ Current Functionality |
 | These limitations will be actively addressed in future updates to help make Azure Reaper work and play better. |  |
 ## Status
 Azure Reaper is under active development and is constantly evolving. The capabilities and performance of the project are continually being improved.
