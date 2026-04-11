@@ -89,3 +89,9 @@ variable "status_tag_name" {
   description = "Tag name for reaper status tracking"
   default     = "CloudReaperStatus"
 }
+
+variable "deletion_time_tag_name" {
+  type        = string
+  description = "Tag name for the scheduled deletion timestamp"
+  default     = "CloudReaperDeletionTime"
+}

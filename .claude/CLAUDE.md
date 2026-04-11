@@ -95,6 +95,7 @@ Requires Docker or Podman for running Azurite (Azure Storage emulator). The proj
 **Tag System (configurable via `LifetimeTagName` / `StatusTagName` environment variables):**
 - `CloudReaperLifetime` - Required tag on resource groups, value is minutes until deletion
 - `CloudReaperStatus` - Applied by the system as "Confirmed" when deletion is scheduled
+- `CloudReaperDeletionTime` - Applied by the system with the ISO 8601 UTC timestamp of the scheduled deletion
 
 ## Infrastructure
 

@@ -17,6 +17,7 @@ public class AzureResourceEntity(
 {
     private readonly string _lifetimeTagName = configuration.GetValue<string>("LifetimeTagName") ?? "CloudReaperLifetime";
     private readonly string _statusTagName = configuration.GetValue<string>("StatusTagName") ?? "CloudReaperStatus";
+    private readonly string _deletionTimeTagName = configuration.GetValue<string>("DeletionTimeTagName") ?? "CloudReaperDeletionTime";
 
     public async Task InitializeEntityAsync(ResourcePayload resourcePayload)
     {
@@ -51,7 +52,7 @@ public class AzureResourceEntity(
             return;
         }
 
-        SetSchedule(lifetimeMinutes.Value);
+        await SetScheduleAsync(lifetimeMinutes.Value);
     }
 
     private async Task<int?> ValidateResourceGroupEligibility()
@@ -108,7 +109,7 @@ public class AzureResourceEntity(
         }
     }
 
-    private void SetSchedule(int lifetimeMinutes)
+    private async Task SetScheduleAsync(int lifetimeMinutes)
     {
         var signalTime = DateTimeOffset.UtcNow.AddMinutes(lifetimeMinutes);
         var signalOptions = new SignalEntityOptions
@@ -119,6 +120,17 @@ public class AzureResourceEntity(
 
         State.Scheduled = true;
         State.DeletionScheduledAt = signalTime;
+
+        try
+        {
+            await azureResourceService.ApplyResourceGroupTags(State.SubscriptionId!, State.ResourceGroupName!,
+                _deletionTimeTagName, signalTime.ToString("o"));
+            logger.LogInformation("[EntityTrigger] Applied '{tag}' = '{time}' to Resource Group '{rg}'", _deletionTimeTagName, signalTime.ToString("o"), State.ResourceGroupName);
+        }
+        catch (RequestFailedException ex) when (ex.Status == 404)
+        {
+            logger.LogWarning("[EntityTrigger] Resource Group '{rg}' was deleted before deletion time tag could be applied", State.ResourceGroupName);
+        }
 
         logger.LogInformation("[EntityTrigger] Scheduled deletion of Resource Group '{rg}' at {time}", State.ResourceGroupName, signalTime);
     }
