@@ -91,6 +91,7 @@ resource "azurerm_function_app_flex_consumption" "reaper" {
     "AzureWebJobsStorage__credential"  = "managedidentity"
     "LifetimeTagName"                  = var.lifetime_tag_name
     "StatusTagName"                    = var.status_tag_name
+    "DeletionTimeTagName"              = var.deletion_time_tag_name
   }
 
   tags = merge(local.default_tags, {
