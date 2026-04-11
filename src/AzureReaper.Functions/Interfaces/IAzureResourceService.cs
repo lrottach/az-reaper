@@ -6,5 +6,6 @@ public interface IAzureResourceService
 {
     Task<ResourceGroupResource?> GetAzureResourceGroup(string subscriptionId, string resourceGroupName);
     Task ApplyResourceGroupTags(string subscriptionId, string resourceGroupName, string tagName, string tagValue);
+    Task RemoveResourceGroupTag(string subscriptionId, string resourceGroupName, string tagName);
     Task DeleteResourceGroupAsync(string subscriptionId, string resourceGroupName);
 }

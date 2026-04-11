@@ -35,6 +35,14 @@ public class AzureResourceService(ArmClient armClient, ILogger<AzureResourceServ
         logger.LogInformation("[AzureResourceService] Tags applied to Resource Group '{resourceGroup}'", resourceGroupName);
     }
 
+    public async Task RemoveResourceGroupTag(string subscriptionId, string resourceGroupName, string tagName)
+    {
+        var resourceGroupIdentifier = ResourceGroupResource.CreateResourceIdentifier(subscriptionId, resourceGroupName);
+        var rg = armClient.GetResourceGroupResource(resourceGroupIdentifier);
+        await rg.RemoveTagAsync(tagName);
+        logger.LogInformation("[AzureResourceService] Tag '{tagName}' removed from Resource Group '{resourceGroup}'", tagName, resourceGroupName);
+    }
+
     public async Task DeleteResourceGroupAsync(string subscriptionId, string resourceGroupName)
     {
         var resourceGroupIdentifier = ResourceGroupResource.CreateResourceIdentifier(subscriptionId, resourceGroupName);

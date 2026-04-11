@@ -137,6 +137,45 @@ public class AzureResourceEntity(
 
     public async Task DeleteResourceAsync()
     {
+        // Re-fetch the resource group to check current tag state
+        var rg = await azureResourceService.GetAzureResourceGroup(State.SubscriptionId!, State.ResourceGroupName!);
+
+        if (rg is null)
+        {
+            logger.LogWarning("[EntityTrigger] Resource Group '{rg}' no longer exists. Cleaning up entity.", State.ResourceGroupName);
+            State = null!;
+            return;
+        }
+
+        // Check if the lifetime tag was removed (user cancelled deletion)
+        if (!rg.Data.Tags.ContainsKey(_lifetimeTagName))
+        {
+            logger.LogInformation("[EntityTrigger] Lifetime tag '{tag}' removed from Resource Group '{rg}'. Cancelling scheduled deletion.",
+                _lifetimeTagName, State.ResourceGroupName);
+
+            // Clean up reaper metadata tags (best-effort — entity cleanup must not be blocked by tag removal failures)
+            try
+            {
+                if (rg.Data.Tags.ContainsKey(_statusTagName))
+                {
+                    await azureResourceService.RemoveResourceGroupTag(State.SubscriptionId!, State.ResourceGroupName!, _statusTagName);
+                }
+
+                if (rg.Data.Tags.ContainsKey(_deletionTimeTagName))
+                {
+                    await azureResourceService.RemoveResourceGroupTag(State.SubscriptionId!, State.ResourceGroupName!, _deletionTimeTagName);
+                }
+            }
+            catch (RequestFailedException ex)
+            {
+                logger.LogWarning(ex, "[EntityTrigger] Failed to remove cleanup tags from Resource Group '{rg}'. Entity will still be cleaned up.", State.ResourceGroupName);
+            }
+
+            State = null!;
+            return;
+        }
+
+        // Lifetime tag still present - proceed with deletion
         try
         {
             await azureResourceService.DeleteResourceGroupAsync(State.SubscriptionId!, State.ResourceGroupName!);
