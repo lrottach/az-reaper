@@ -38,7 +38,7 @@ Azure Reaper is under active development and is constantly evolving. The capabil
 
 
 
-## Local Development
+# Local Development
 
 ### Prerequisites
 
