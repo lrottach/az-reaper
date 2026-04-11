@@ -137,6 +137,45 @@ public class AzureResourceEntity(
 
     public async Task DeleteResourceAsync()
     {
+        // Re-fetch the resource group to check current tag state
+        var rg = await azureResourceService.GetAzureResourceGroup(State.SubscriptionId!, State.ResourceGroupName!);
+
+        if (rg is null)
+        {
+            logger.LogWarning("[EntityTrigger] Resource Group '{rg}' no longer exists. Cleaning up entity.", State.ResourceGroupName);
+            State = null!;
+            return;
+        }
+
+        // Check if the lifetime tag was removed (user cancelled deletion)
+        if (!rg.Data.Tags.ContainsKey(_lifetimeTagName))
+        {
+            logger.LogInformation("[EntityTrigger] Lifetime tag '{tag}' removed from Resource Group '{rg}'. Cancelling scheduled deletion.",
+                _lifetimeTagName, State.ResourceGroupName);
+
+            // Clean up reaper metadata tags if they exist
+            try
+            {
+                if (rg.Data.Tags.ContainsKey(_statusTagName))
+                {
+                    await azureResourceService.RemoveResourceGroupTag(State.SubscriptionId!, State.ResourceGroupName!, _statusTagName);
+                }
+
+                if (rg.Data.Tags.ContainsKey(_deletionTimeTagName))
+                {
+                    await azureResourceService.RemoveResourceGroupTag(State.SubscriptionId!, State.ResourceGroupName!, _deletionTimeTagName);
+                }
+            }
+            catch (RequestFailedException ex) when (ex.Status == 404)
+            {
+                logger.LogWarning("[EntityTrigger] Resource Group '{rg}' was deleted before cleanup tags could be removed", State.ResourceGroupName);
+            }
+
+            State = null!;
+            return;
+        }
+
+        // Lifetime tag still present - proceed with deletion
         try
         {
             await azureResourceService.DeleteResourceGroupAsync(State.SubscriptionId!, State.ResourceGroupName!);
