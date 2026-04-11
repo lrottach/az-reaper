@@ -25,12 +25,10 @@ Cloud Reaper for Azure currently has the following limitations:
 
 | Description | Status |
 | ----- | ----- |
-| It is not possible to stop the deletion of a scheduled resource group. 😅 However, a lock can be applied to prevent deletion. | ✅ Workaround Available |
-| Cloud Reaper for Azure has only been tested with a single subscription. Multi-subscription support is planned. | 🔨 Planned Improvement |
-| Cloud Reaper for Azure operates only at the Azure Resource Group level, not on individual resources | 🗒️ Current Functionality |
-| Cloud Reaper for Azure uses UTC internally for all scheduling and timestamps (e.g. `CloudReaperDeletionTime`). There is currently no option to configure a different time zone. | 🗒️ Current Functionality |
-| Re-scheduling a deletion by updating the `CloudReaperLifetime` tag value after the resource group has already been scheduled is not supported. The original schedule remains active. | 🗒️ Current Functionality |
-| These limitations will be actively addressed in future updates to help make Cloud Reaper for Azure work and play better. |  |
+| Cloud Reaper for Azure has only been tested with a single subscription. Multi-subscription support is planned. | Planned Improvement |
+| Cloud Reaper for Azure operates only at the Azure Resource Group level, not on individual resources | Current Functionality |
+| Cloud Reaper for Azure uses UTC internally for all scheduling and timestamps (e.g. `CloudReaperDeletionTime`). There is currently no option to configure a different time zone. | Current Functionality |
+| Re-scheduling a deletion by updating the `CloudReaperLifetime` tag value after the resource group has already been scheduled is not supported. The original schedule remains active. | Current Functionality |
 ## Status
 Cloud Reaper for Azure is under active development and is constantly evolving. The capabilities and performance of the project are continually being improved.
 
