@@ -19,7 +19,7 @@ Azure Reaper uses specific tags to manage the lifecycle of Azure resource groups
 | ----- | ----- | ----- | ----- | ----- |
 | CloudReaperLifetime | This tag is applied when the resource group is created by the engineer. It specifies the lifespan of the resource group in minutes before it should be deleted. The value must be a positive integer (> 0). Values of 0, negative numbers, or non-integer strings are ignored. Configurable via `LifetimeTagName`. | 60 (for 60 minutes lifetime) | User |  |
 | CloudReaperStatus | This tag is applied by Azure Reaper after successful validation and scheduling of the resource group’s deletion. It indicates that the resource group is confirmed for deletion. Configurable via `StatusTagName`. | Confirmed | Azure Reaper | Can be used to return comments or error messages from Azure Reaper |
-| CloudReaperDeletionTime | Could be used to message back the exact time and date of the scheduled death. | 2024-05-31T15:30:00Z | Azure Reaper | Not yet implmeneted! |
+| CloudReaperDeletionTime | Applied by Azure Reaper after scheduling deletion. Shows the exact UTC timestamp when the resource group will be deleted (ISO 8601 format). Configurable via `DeletionTimeTagName`. | 2024-05-31T15:30:00.0000000+00:00 | Azure Reaper |  |
 ## Limitations
 Azure Reaper currently has the following limitations:
 
@@ -250,6 +250,7 @@ Configured in `src/AzureReaper.Functions/local.settings.json` (see [`local.setti
 | `FUNCTIONS_WORKER_RUNTIME` | `dotnet-isolated` | Yes | Required for the isolated worker model |
 | `LifetimeTagName` | `CloudReaperLifetime` | No | Custom tag name for resource group lifetime (minutes) |
 | `StatusTagName` | `CloudReaperStatus` | No | Custom tag name applied when deletion is scheduled |
+| `DeletionTimeTagName` | `CloudReaperDeletionTime` | No | Custom tag name for the scheduled deletion timestamp |
 
 ### Dev Container
 
