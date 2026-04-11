@@ -34,7 +34,7 @@
 				"ms-vscode.azurecli",
 				"ms-dotnettools.csharp",
 				"ms-dotnettools.vscode-dotnet-runtime",
-				"ms-azuretools.vscode-bicep",
+				"hashicorp.terraform",
 				"ms-vscode.vscode-node-azure-pack",
 				"vscodevim.vim",
 				"ms-azuretools.azure-dev",

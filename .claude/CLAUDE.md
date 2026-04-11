@@ -99,7 +99,7 @@ Requires Docker or Podman for running Azurite (Azure Storage emulator). The proj
 
 ## Infrastructure
 
-Infrastructure as Code is in `infra/main.bicep` (subscription-scoped deployment).
+Infrastructure as Code is managed with Terraform in the `infra/` directory.
 
 ## Development Guidelines
 
@@ -125,4 +125,4 @@ Always prefer the **isolated worker model** patterns over the legacy in-process 
 - Durable Functions with Distributed Tracing V2 enabled
 - Azure SDK (Azure.ResourceManager, Azure.Identity)
 - EventGrid triggers
-- Planned: Azure Developer CLI (`azd`) for deployment, GitHub Actions for CI/CD
+- Azure Developer CLI (`azd`) for deployment
