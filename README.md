@@ -107,6 +107,56 @@ curl -X POST \
   http://localhost:7071/runtime/webhooks/EventGrid?functionName=EventGridTrigger
 ```
 
+### Testing Against Real Azure Resources
+
+By default the example payloads use placeholder subscription and resource group values (`xxxxxxxx-…`). To test tagging, scheduling, and deletion of actual resource groups in Azure, you need to authenticate locally and point the payload at a real resource group.
+
+**1. Authenticate with Azure CLI**
+
+Sign in with the Azure CLI so the Functions app can obtain a token via `DefaultAzureCredential`:
+
+```bash
+az login
+```
+
+If your account has access to multiple tenants or subscriptions, select the correct one:
+
+```bash
+az account set --subscription "<subscription-id-or-name>"
+```
+
+Verify your session:
+
+```bash
+az account show
+```
+
+**2. Rewrite the EventGrid payload**
+
+Open `rest/eventgrid.http` (or `rest/payload.example.json`) and replace every `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` subscription placeholder with your real subscription ID. Then set the resource group name to the one you want Azure Reaper to target.
+
+The two fields that matter most are `subject` and `data.resourceUri` — they must contain the full resource ID of the target resource group:
+
+```
+/subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>
+```
+
+Also update these fields to match:
+
+| Field | Value |
+|-------|-------|
+| `subject` | `/subscriptions/<sub-id>/resourceGroups/<rg-name>` |
+| `data.authorization.scope` | `/subscriptions/<sub-id>/resourceGroups/<rg-name>` |
+| `data.resourceUri` | `/subscriptions/<sub-id>/resourceGroups/<rg-name>` |
+| `data.subscriptionId` | `<sub-id>` |
+| `topic` | `/subscriptions/<sub-id>` |
+
+> **Warning:** This will schedule a real deletion. Make sure the target resource group is a throwaway test group and has the `CloudReaperLifetime` tag set (value in minutes). Apply a resource lock first if you want to verify scheduling without actually deleting.
+
+**3. Send the request**
+
+Fire the modified payload against the local function app as described in [Testing the EventGrid Trigger](#testing-the-eventgrid-trigger). Azure Reaper will use your `az login` session to read tags, apply the `CloudReaperStatus` tag, and schedule deletion via the Durable Entity.
+
 ### Environment Variables
 
 Configured in `src/AzureReaper.Functions/local.settings.json` (see [`local.settings.sample.json`](src/AzureReaper.Functions/local.settings.sample.json) for a template):
